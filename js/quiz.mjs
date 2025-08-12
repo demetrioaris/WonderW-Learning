@@ -127,6 +127,7 @@ function selectAnswer(buttonEl, selectedOption, correctAnswer) {
  * Shows the final score and saves the result to localStorage.
  */
 function showFinalScore() {
+  const BASE = location.hostname.endsWith("github.io") ? "/WonderW-Learning/" : "/";
   questionTextEl.textContent = "Quiz Complete!";
   optionsEl.innerHTML = "";
   feedbackTextEl.innerHTML = `You scored <strong>${score}</strong> out of <strong>${questions.length}</strong>!`;
@@ -157,7 +158,7 @@ function showFinalScore() {
   nextButtonEl.textContent = "Play Another Category";
   nextButtonEl.style.display = "block";
   nextButtonEl.onclick = () => {
-    window.location.href = `${window.location.origin}/WonderW-Learning/pages/categories.html`;
+    window.location.href = `${BASE}pages/categories.html`;
   };
 }
 /**
