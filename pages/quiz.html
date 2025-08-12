@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Quiz - WonderWorld Learning</title>
+  <link rel="stylesheet" href="../css/base.css">
+  <script src="../js/app.js" type="module"></script>
+</head>
+
+<body>
+  <a class="skip-link" href="#main">Skip to main content</a>
+  <header id="main-header"></header>
+
+  <main id="main">
+    <div class="quiz-wrapper">
+      <header class="quiz-header">
+        <div class="quiz-status">
+          <span>Question <span id="question-current">1</span> of <span id="question-total">10</span></span>
+          <span>Score: <span id="score-value">0</span></span>
+        </div>
+        <div id="quiz-timer" class="quiz-timer">Time: <span>30</span></div>
+      </header>
+
+      <section class="quiz-body">
+        <h2 id="question-text">Loading question...</h2>
+        <div id="quiz-options" class="quiz-options">
+        </div>
+      </section>
+      <footer class="quiz-footer">
+        <p id="feedback-text"></p>
+        <button id="next-question-btn" class="cta-button" style="display: none;">Next Question</button>
+      </footer>
+  </main>
+
+  <footer id="main-footer"></footer>
+
+</body>
+
+</html>

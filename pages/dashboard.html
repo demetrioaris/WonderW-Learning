@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard - WonderWorld Learning</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lora&family=Roboto+Mono:wght@400;700&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="../css/base.css">
+  <script src="../js/app.js" type="module"></script>
+</head>
+
+<body>
+  <a class="skip-link" href="#main">Skip to main content</a>
+  <header id="main-header"></header>
+
+  <main id="main">
+    <h2>My Progress</h2>
+    <div class="dashboard-card">
+
+      <div class="stats-container">
+        <div class="stat-card">
+          <h4>Quizzes Completed</h4>
+          <p id="total-quizzes">0</p>
+        </div>
+        <div class="stat-card">
+          <h4>Overall Average</h4>
+          <p id="average-score">0%</p>
+        </div>
+        <div class="stat-card">
+          <h4>Best Category</h4>
+          <p id="best-category">N/A</p>
+        </div>
+      </div>
+      <h3>Quiz History</h3>
+      <table class="history-table">
+      </table>
+    </div>
+
+    <div class="dashboard-card">
+      <h3>My Achievements</h3>
+      <div class="badges-container">
+
+        <div id="badge-gold-medal" class="badge locked">
+
+          <span>Gold Medal</span>
+          <small>Achieve a perfect score (100%) in any quiz.</small>
+        </div>
+
+        <div id="badge-scientist" class="badge locked">
+
+
+          [Image of a science beaker]
+
+          <span>Little Scientist</span>
+          <small>Complete 5 quizzes in the Science & Nature category.</small>
+        </div>
+
+        <div id="badge-mastermind" class="badge locked">
+
+
+          [Image of a brain with a lightbulb]
+
+          <span>Mastermind</span>
+          <small>Complete a quiz from at least 3 different categories.</small>
+        </div>
+
+      </div>
+    </div>
+    <div class="dashboard-card">
+      <h3>Performance by Category</h3>
+      <canvas id="category-chart"></canvas>
+    </div>
+  </main>
+  <script src="../js/app.js" type="module"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <footer id="main-footer"></footer>
+</body>
+
+</html>
