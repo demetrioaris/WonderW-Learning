@@ -7,7 +7,9 @@ export function initHeaderNav() {
   const mobileGroup = mobileNav?.querySelector(".mobile-group");
   const mobileAccordion = mobileNav?.querySelector(".mobile-accordion");
 
-  if (!header || !headerBar) {return;}
+  if (!header || !headerBar) {
+    return;
+  }
 
   if (mobileGroup && mobileAccordion) {
     mobileAccordion.addEventListener("click", () => {
@@ -17,7 +19,9 @@ export function initHeaderNav() {
   }
 
   const setHeaderHeightVar = () => {
-    const h = document.querySelector("header")?.getBoundingClientRect().height || 64;
+    const h =
+            document.querySelector("header")?.getBoundingClientRect().height ||
+            64;
     document.documentElement.style.setProperty("--header-h", `${h}px`);
   };
   setHeaderHeightVar();
@@ -54,4 +58,12 @@ export function initHeaderNav() {
       }
     });
   }
+
+  (function () {
+    const isGh = location.hostname.endsWith("github.io");
+    const repo = "WonderW-Learning/"; // ¡tu nombre de repo!
+    const base = document.createElement("base");
+    base.href = isGh ? `/${repo}` : "/";
+    document.head.prepend(base);
+  })();
 }
