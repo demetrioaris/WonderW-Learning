@@ -157,7 +157,7 @@ function showFinalScore() {
   nextButtonEl.textContent = "Play Another Category";
   nextButtonEl.style.display = "block";
   nextButtonEl.onclick = () => {
-    window.location.href = "categories.html"; 
+    window.location.href = `${window.location.origin}/WonderW-Learning/pages/categories.html`;
   };
 }
 /**

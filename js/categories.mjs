@@ -25,14 +25,14 @@ function render(items) {
       node.querySelector(".category-name").textContent = cat.name;
       node.querySelector(".category-desc").textContent = cat.desc;
       const a = node.querySelector(".play-btn");
-      a.href = `quiz.html?category=${encodeURIComponent(cat.id)}&name=${encodeURIComponent(cat.name)}`;
+      a.href = `${window.location.origin}/WonderW-Learning/pages/quiz.html?category=${encodeURIComponent(cat.id)}&name=${encodeURIComponent(cat.name)}`;
       a.setAttribute("aria-label", `Play quiz in ${cat.name}`);
       list.appendChild(node);
     } else {
       const a = document.createElement("a");
       a.className = "btn";
       a.textContent = `Play ${cat.name}`;
-      a.href = `quiz.html?category=${encodeURIComponent(cat.id)}&name=${encodeURIComponent(cat.name)}`;
+      a.href = `${window.location.origin}/WonderW-Learning/pages/quiz.html?category=${encodeURIComponent(cat.id)}&name=${encodeURIComponent(cat.name)}`;
       list.appendChild(a);
     }
   });
