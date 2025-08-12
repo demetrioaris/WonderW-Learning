@@ -1,4 +1,5 @@
-// Categories: renders subject cards and builds links to quiz.html with category params.
+// js/categories.mjs
+// Renders subject cards and builds links to quiz.html with category params.
 // External API used later in quiz: OpenTDB (category IDs referenced here)
 
 const SUBJECTS = [
@@ -10,42 +11,55 @@ const SUBJECTS = [
   { id: 9,  name: "General Knowledge", desc: "10-question quiz" }
 ];
 
-const $ = (sel, p = document) => p.querySelector(sel);
-
-const list = $("#categories-list");
-const tpl = $("#tpl-category-card");
-const form = $("#category-search-form");
-
-function render(items) {
-  const BASE = location.hostname.endsWith("github.io") ? "/WonderW-Learning/" : "/";
-  if (!list) {return;}
-  list.innerHTML = "";
-  items.forEach(cat => {
-    if (tpl) {
-      const node = tpl.content.cloneNode(true);
-      node.querySelector(".category-name").textContent = cat.name;
-      node.querySelector(".category-desc").textContent = cat.desc;
-      const a = node.querySelector(".play-btn");
-      a.href = `${BASE}pages/quiz.html?category=${encodeURIComponent(cat.id)}&name=${encodeURIComponent(cat.name)}`;
-      a.setAttribute("aria-label", `Play quiz in ${cat.name}`);
-      list.appendChild(node);
-    } else {
-      const a = document.createElement("a");
-      a.className = "btn";
-      a.textContent = `Play ${cat.name}`;
-      a.href = `${BASE}pages/quiz.html?category=${encodeURIComponent(cat.id)}&name=${encodeURIComponent(cat.name)}`;
-      list.appendChild(a);
-    }
-  });
+function getBase() {
+  // Detecta repo en GitHub Pages: usuario.github.io/<repo>/...
+  const isGh = location.hostname.endsWith("github.io");
+  const parts = location.pathname.split("/").filter(Boolean); // ["WonderW-Learning", "pages", "categories.html"]
+  const repo = isGh ? (parts[0] || "") : "";
+  return repo ? `/${repo}/` : "/";
 }
 
-render(SUBJECTS);
+const $ = (sel, p = document) => p.querySelector(sel);
 
-if (form) {
-  form.addEventListener("submit", (e) => {
-    e.preventDefault();
-    const q = new FormData(form).get("q")?.toString().toLowerCase().trim() || "";
-    const filtered = SUBJECTS.filter(s => s.name.toLowerCase().includes(q));
-    render(filtered);
-  });
+export function initCategories() {
+  const BASE = getBase();
+  const list = $("#categories-list");
+  const tpl  = $("#tpl-category-card");
+  const form = $("#category-search-form");
+
+  if (!list) {return;}
+
+  function render(items) {
+    list.innerHTML = "";
+    items.forEach(cat => {
+      if (tpl) {
+        const node = tpl.content.cloneNode(true);
+        node.querySelector(".category-name").textContent = cat.name;
+        node.querySelector(".category-desc").textContent = cat.desc;
+
+        const a = node.querySelector(".play-btn");
+        a.href = `${BASE}pages/quiz.html?category=${encodeURIComponent(cat.id)}&name=${encodeURIComponent(cat.name)}`;
+        a.setAttribute("aria-label", `Play quiz in ${cat.name}`);
+
+        list.appendChild(node);
+      } else {
+        const a = document.createElement("a");
+        a.className = "btn";
+        a.textContent = `Play ${cat.name}`;
+        a.href = `${BASE}pages/quiz.html?category=${encodeURIComponent(cat.id)}&name=${encodeURIComponent(cat.name)}`;
+        list.appendChild(a);
+      }
+    });
+  }
+
+  render(SUBJECTS);
+
+  if (form) {
+    form.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const q = new FormData(form).get("q")?.toString().toLowerCase().trim() || "";
+      const filtered = SUBJECTS.filter(s => s.name.toLowerCase().includes(q));
+      render(filtered);
+    });
+  }
 }

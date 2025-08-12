@@ -10,6 +10,14 @@ let currentQuestionIndex = 0;
 let score = 0;
 let timer;
 
+function getBase() {
+  const isGh = location.hostname.endsWith("github.io");
+  const parts = location.pathname.split("/").filter(Boolean); // ["WonderW-Learning", "pages", "quiz.html"]
+  const repo = isGh ? (parts[0] || "") : "";
+  return repo ? `/${repo}/` : "/";
+}
+const BASE = getBase();
+
 /**
  * Initializes the quiz, fetches data based on URL category, and starts the first question.
  */
@@ -127,22 +135,22 @@ function selectAnswer(buttonEl, selectedOption, correctAnswer) {
  * Shows the final score and saves the result to localStorage.
  */
 function showFinalScore() {
-  const BASE = location.hostname.endsWith("github.io") ? "/WonderW-Learning/" : "/";
   questionTextEl.textContent = "Quiz Complete!";
   optionsEl.innerHTML = "";
   feedbackTextEl.innerHTML = `You scored <strong>${score}</strong> out of <strong>${questions.length}</strong>!`;
   
   // --- LÓGICA PARA GUARDAR ---
   const urlParams = new URLSearchParams(window.location.search);
-  const categoryName = urlParams.get("name") || "General Knowledge"; // Obtiene el nombre de la URL
+  const rawName = urlParams.get("name");
+  const categoryName = rawName ? decodeURIComponent(rawName) : "General Knowledge";
 
   // 1. Crea el objeto con el resultado del quiz.
   const result = {
-    categoryName: categoryName.replace(/%20/g, " "), // Reemplaza %20 con espacios
+    categoryName,
     score: score,
     totalQuestions: questions.length,
     percentage: Math.round((score / questions.length) * 100),
-    date: new Date().toLocaleDateString() // Guarda la fecha actual
+    date: new Date().toLocaleDateString()
   };
 
   // 2. Obtiene el historial existente o crea un array vacío.
@@ -161,6 +169,7 @@ function showFinalScore() {
     window.location.href = `${BASE}pages/categories.html`;
   };
 }
+
 /**
  * Starts a 30-second countdown timer for the current question.
  * @param {string} correctAnswer - The correct answer for the current question.
