@@ -6,7 +6,32 @@ import { makeCountdown, shuffle, sampleDistinct } from "./gametools.mjs";
 
 // ---------- Config ----------
 const SECS_PER_ROUND = 20;
-const FACTS_ENDPOINT = "/api/animals"; // Cloudflare Pages/Workers proxy que oculta tu API key
+
+/*
+ FACTS_ENDPOINT dinámico y seguro:
+ - Si agregas <meta name="facts-endpoint" content="https://tu-dominio/api/animals">, lo usa.
+ - Si NO hay meta:
+     • En producción (pages.dev / dominio propio con Functions): usa "/api/animals".
+     • En dev simple (:5500): DESACTIVA facts para evitar errores de red.
+   (Si quieres facts en dev, agrega el <meta> apuntando a tu endpoint local o prod.)
+*/
+const FACTS_ENDPOINT = (() => {
+  const meta = document.querySelector("meta[name=\"facts-endpoint\"]")?.content?.trim();
+  if (meta === "none") {return null;} // permitir desactivar explícitamente
+  if (meta) {return meta;}
+
+  const host = location.hostname;
+  const isCFHosted =
+    host.endsWith(".pages.dev") ||
+    host.endsWith(".workers.dev") ||
+    // Si ya mapeaste dominio propio, este check no sirve, pero igual el endpoint relativo funciona
+    (!["localhost", "127.0.0.1"].includes(host) && location.protocol.startsWith("http"));
+
+  if (isCFHosted) {return "/api/animals";}
+
+  // Dev simple (Live Server, :5500) sin meta => no intentamos facts
+  return null;
+})();
 
 // ---------- Carga del dataset (JSON) ----------
 async function loadAnimalsPool() {
@@ -25,18 +50,19 @@ async function loadAnimalsPool() {
 
   if (!Array.isArray(data)) {throw new Error("Animals JSON not found in expected paths");}
 
-  // Normaliza y vuelve absolutas las rutas de las imágenes (evita 404 desde /pages/)
+  // Normaliza y vuelve absolutas las rutas de imagen (evita 404 desde /pages/)
   return data
     .filter(x => x && x.title && x.img)
     .map(x => ({
       title: x.title,
-      api: x.api || x.title,        // nombre a consultar en la API (puede diferir del mostrado)
+      api: x.api || x.title,   // nombre para la API (puede diferir del mostrado)
       img: resolveAbs(x.img)
     }));
 }
 
-// ---------- Facts (API Ninjas vía proxy) ----------
+// ---------- Facts (API Ninjas vía proxy secreto) ----------
 async function fetchFactsViaProxy(commonName) {
+  if (!FACTS_ENDPOINT) {return null;} // facts desactivados (p.ej. dev :5500 sin meta)
   const res = await fetch(`${FACTS_ENDPOINT}?name=${encodeURIComponent(commonName)}`);
   if (!res.ok) {throw new Error(`Proxy HTTP ${res.status}`);}
   const data = await res.json();
@@ -146,7 +172,9 @@ function timeUp(specimen) {
 async function appendFactsAndAgain(fb, specimen, correct) {
   const factsBox = document.createElement("div");
   factsBox.className = "fact-card";
-  factsBox.textContent = "Fetching facts…";
+  factsBox.textContent = FACTS_ENDPOINT
+    ? "Fetching facts…"
+    : "Facts are disabled in local dev. Add <meta name='facts-endpoint' ...> or run Cloudflare dev.";
   fb.appendChild(factsBox);
 
   const again = document.createElement("button");
@@ -156,6 +184,8 @@ async function appendFactsAndAgain(fb, specimen, correct) {
   again.textContent = correct ? "Play again" : "Try another";
   again.addEventListener("click", newRound, { once: true });
   fb.appendChild(again);
+
+  if (!FACTS_ENDPOINT) {return;} // no intentamos fetch si no hay endpoint
 
   try {
     const apiName = specimen.api || specimen.title;
@@ -203,7 +233,7 @@ export async function initNatureLab() {
   newRound();
 }
 
-// Auto-init (usa util común)
+// Auto-init (utilidad compartida)
 safeInit(initNatureLab, () => {
   const c = document.getElementById("game-area");
   if (c) {c.innerHTML = "<p>We couldn't load the game right now. Please try again later.</p>";}
