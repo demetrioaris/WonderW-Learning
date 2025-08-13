@@ -1,208 +1,259 @@
-import { fetchQuizData } from "./api.mjs";
+/* Quiz module: OpenTDB multiple choice
+   - Lee ?category=<id>&name=<display>
+   - Carga 10 preguntas de Open Trivia DB
+   - Timer por pregunta, score, feedback y resumen final
+*/
 
-// DOM Elements
-let questionTextEl, optionsEl, feedbackTextEl, nextButtonEl;
-let currentQuestionEl, totalQuestionsEl, scoreValueEl, timerEl;
+// ---------- Helpers ----------
+const $ = (sel, parent = document) => parent.querySelector(sel);
 
-// Quiz State
+// --- Resolución robusta de rutas (local y GitHub Pages) ---
+function siteBase() {
+  // Si defines <html data-repo="WonderW-Learning"> lo respetamos
+  const dataRepo = document.documentElement.getAttribute("data-repo");
+  if (dataRepo) {return `/${dataRepo.replace(/^\/|\/$/g, "")}/`;}
+
+  // En GitHub Pages: usuario.github.io/<repo>/
+  if (location.hostname.endsWith("github.io")) {
+    const first = location.pathname.split("/").filter(Boolean)[0];
+    return first ? `/${first}/` : "/";
+  }
+  // En local (ej. 127.0.0.1:5500)
+  return "/";
+}
+const resolve = (path) => new URL(path, `${location.origin}${siteBase()}`).toString();
+
+const decode = (str) => {
+  const txt = document.createElement("textarea");
+  txt.innerHTML = str;
+  return txt.value;
+};
+
+const shuffle = (arr) => {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = (Math.random() * (i + 1)) | 0;
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+};
+
+// ---------- DOM refs ----------
+const categoryNameEl = $("#category-name");
+const questionTextEl = $("#question-text");
+const optionsEl = $("#options");
+const nextButtonEl = $("#next-question-btn");
+const timerEl = $("#timer");
+const scoreValueEl = $("#score-value");
+const qIndexEl = $("#question-index");
+const qTotalEl = $("#question-total");
+const feedbackEl = $("#feedback");
+
+// ---------- State ----------
 let questions = [];
-let currentQuestionIndex = 0;
+let current = 0;
 let score = 0;
-let timer;
+let timer = null;
+const SECS_PER_Q = 30;
 
-function getBase() {
-  const isGh = location.hostname.endsWith("github.io");
-  const parts = location.pathname.split("/").filter(Boolean); // ["WonderW-Learning", "pages", "quiz.html"]
-  const repo = isGh ? (parts[0] || "") : "";
-  return repo ? `/${repo}/` : "/";
-}
-const BASE = getBase();
-
-/**
- * Initializes the quiz, fetches data based on URL category, and starts the first question.
- */
-export async function initQuiz() {
-  // Find all necessary DOM elements once
-  questionTextEl = document.getElementById("question-text");
-  optionsEl = document.getElementById("quiz-options");
-  feedbackTextEl = document.getElementById("feedback-text");
-  nextButtonEl = document.getElementById("next-question-btn");
-  currentQuestionEl = document.getElementById("question-current");
-  totalQuestionsEl = document.getElementById("question-total");
-  scoreValueEl = document.getElementById("score-value");
-  const timerContainer = document.getElementById("quiz-timer");
-
-  // Safety check to ensure all elements exist before proceeding
-  if (!questionTextEl || !optionsEl || !nextButtonEl || !timerContainer) {
-    console.error("Quiz initialization failed: One or more essential HTML elements are missing.");
-    return;
-  }
-  
-  timerEl = timerContainer.querySelector("span");
-  nextButtonEl.addEventListener("click", () => displayNextQuestion());
-    
-  // Get the category ID from the current URL
-  const urlParams = new URLSearchParams(window.location.search);
-  const categoryId = urlParams.get("category");
-  
-  // Fetch data from the API, passing the selected category ID
-  const rawQuestions = await fetchQuizData(categoryId);
-  
-  if (rawQuestions.length === 0) {
-    questionTextEl.textContent = "Failed to load questions for this category. Please try another one.";
-    document.querySelector(".quiz-header").style.display = "none";
-    return;
-  }
-  
-  questions = rawQuestions;
-  totalQuestionsEl.textContent = questions.length;
-
-  // Start the quiz
-  displayNextQuestion();
-}
-
-/**
- * Displays the current question and its options.
- */
-function displayNextQuestion() {
-  resetState();
-  if (currentQuestionIndex >= questions.length) {
-    showFinalScore();
-    return;
-  }
-
-  const question = questions[currentQuestionIndex];
-  const options = [...question.incorrect_answers, question.correct_answer];
-    
-  // Update question text and status
-  questionTextEl.innerHTML = question.question;
-  currentQuestionEl.textContent = currentQuestionIndex + 1;
-
-  // Create and display answer buttons
-  options.sort(() => Math.random() - 0.5); // Shuffle options
-  options.forEach(option => {
-    const button = document.createElement("button");
-    button.innerHTML = option;
-    button.className = "quiz-option-btn";
-    button.addEventListener("click", () => selectAnswer(button, option, question.correct_answer));
-    optionsEl.appendChild(button);
+// ---------- API ----------
+async function fetchQuizData(categoryId) {
+  // 10 preguntas, tipo multiple choice
+  const url = `https://opentdb.com/api.php?amount=10&category=${encodeURIComponent(
+    categoryId
+  )}&type=multiple&encode=url3986`;
+  const res = await fetch(url);
+  if (!res.ok) {throw new Error(`HTTP ${res.status}`);}
+  const data = await res.json();
+  if (!data || !Array.isArray(data.results)) {return [];}
+  return data.results.map((q) => {
+    const question = decode(decodeURIComponent(q.question));
+    const correct = decode(decodeURIComponent(q.correct_answer));
+    const incorrects = q.incorrect_answers.map((a) =>
+      decode(decodeURIComponent(a))
+    );
+    const all = shuffle([correct, ...incorrects]);
+    return { question, correct, answers: all };
   });
-    
-  startTimer(question.correct_answer);
 }
 
-/**
- * Resets the UI state for the next question.
- */
+// ---------- UI ----------
 function resetState() {
-  clearTimeout(timer);
+  if (timer) {
+    clearInterval(timer);
+    timer = null;
+  }
   optionsEl.innerHTML = "";
-  feedbackTextEl.textContent = "";
+  feedbackEl.innerHTML = "";
   nextButtonEl.style.display = "none";
+  // evitar handlers duplicados si se reutiliza el botón
+  nextButtonEl.onclick = null;
 }
 
-/**
- * Handles the user's answer selection.
- */
-function selectAnswer(buttonEl, selectedOption, correctAnswer) {
-  clearTimeout(timer);
-  // Disable all buttons after an answer is selected
-  Array.from(optionsEl.children).forEach(button => button.disabled = true);
-    
-  if (selectedOption === correctAnswer) {
+function renderQuestion() {
+  resetState();
+  const q = questions[current];
+  if (!q) {return;}
+
+  qIndexEl.textContent = String(current + 1);
+  qTotalEl.textContent = String(questions.length);
+  questionTextEl.textContent = q.question;
+
+  q.answers.forEach((text) => {
+    const btn = document.createElement("button");
+    btn.className = "quiz-option-btn";
+    btn.type = "button";
+    btn.textContent = text;
+    btn.addEventListener("click", () => selectAnswer(btn, q.correct));
+    optionsEl.appendChild(btn);
+  });
+
+  startTimer(SECS_PER_Q);
+}
+
+function selectAnswer(btn, correctText) {
+  const buttons = optionsEl.querySelectorAll(".quiz-option-btn");
+  buttons.forEach((b) => (b.disabled = true));
+
+  const isCorrect = btn.textContent === correctText;
+  if (isCorrect) {
+    btn.classList.add("correct");
     score++;
-    scoreValueEl.textContent = score;
-    buttonEl.classList.add("correct");
-    feedbackTextEl.textContent = "Correct!";
+    if (scoreValueEl) {scoreValueEl.textContent = String(score);}
+    feedbackEl.innerHTML = "<p>✅ Correct!</p>";
   } else {
-    buttonEl.classList.add("incorrect");
-    feedbackTextEl.textContent = `Sorry, the correct answer was: ${correctAnswer}`;
+    btn.classList.add("incorrect");
+    buttons.forEach((b) => {
+      if (b.textContent === correctText) {b.classList.add("correct");}
+    });
+    feedbackEl.innerHTML = `<p>❌ Not quite. The correct answer is: <strong>${correctText}</strong></p>`;
   }
-  
-  // Move to the next question index
-  currentQuestionIndex++;
-  
-  // Show the 'Next Question' or 'Show Results' button
-  if (currentQuestionIndex < questions.length) {
-    nextButtonEl.textContent = "Next Question";
-  } else {
-    nextButtonEl.textContent = "Show Results";
+
+  if (timer) {
+    clearInterval(timer);
+    timer = null;
   }
-  nextButtonEl.style.display = "block";
+
+  nextButtonEl.textContent = current < questions.length - 1 ? "Next" : "See Results";
+  nextButtonEl.style.display = "inline-block";
+  nextButtonEl.onclick = nextQuestion;
 }
 
-/**
- * Shows the final score and saves the result to localStorage.
- */
-function showFinalScore() {
-  questionTextEl.textContent = "Quiz Complete!";
-  optionsEl.innerHTML = "";
-  feedbackTextEl.innerHTML = `You scored <strong>${score}</strong> out of <strong>${questions.length}</strong>!`;
-  
-  // --- LÓGICA PARA GUARDAR ---
-  const urlParams = new URLSearchParams(window.location.search);
-  const rawName = urlParams.get("name");
-  const categoryName = rawName ? decodeURIComponent(rawName) : "General Knowledge";
-
-  // 1. Crea el objeto con el resultado del quiz.
-  const result = {
-    categoryName,
-    score: score,
-    totalQuestions: questions.length,
-    percentage: Math.round((score / questions.length) * 100),
-    date: new Date().toLocaleDateString()
-  };
-
-  // 2. Obtiene el historial existente o crea un array vacío.
-  const history = JSON.parse(localStorage.getItem("quizHistory")) || [];
-
-  // 3. Añade el nuevo resultado al historial.
-  history.push(result);
-
-  // 4. Guarda el historial actualizado en localStorage.
-  localStorage.setItem("quizHistory", JSON.stringify(history));
-  // --- FIN DE LA LÓGICA PARA GUARDAR ---
-
-  nextButtonEl.textContent = "Play Another Category";
-  nextButtonEl.style.display = "block";
-  nextButtonEl.onclick = () => {
-    window.location.href = `${BASE}pages/categories.html`;
-  };
-}
-
-/**
- * Starts a 30-second countdown timer for the current question.
- * @param {string} correctAnswer - The correct answer for the current question.
- */
-function startTimer(correctAnswer) {
-  let timeLeft = 30;
-  timerEl.textContent = timeLeft;
-
+function startTimer(seconds) {
+  let remain = seconds;
+  timerEl.textContent = String(remain);
+  if (timer) {clearInterval(timer);}
   timer = setInterval(() => {
-    timeLeft--;
-    timerEl.textContent = timeLeft;
-    if (timeLeft < 0) {
-      clearTimeout(timer);
-      feedbackTextEl.textContent = "Time's up!";
-      
-      // Find and highlight the correct answer when time runs out
-      Array.from(optionsEl.children).forEach(button => {
-        button.disabled = true;
-        if (button.innerHTML === correctAnswer) {
-          button.classList.add("correct");
-        }
-      });
-      
-      // Move to the next question index
-      currentQuestionIndex++;
-
-      // Show the 'Next Question' or 'Show Results' button
-      if (currentQuestionIndex < questions.length) {
-        nextButtonEl.textContent = "Next Question";
-      } else {
-        nextButtonEl.textContent = "Show Results";
-      }
-      nextButtonEl.style.display = "block";
+    remain -= 1;
+    timerEl.textContent = String(remain);
+    if (remain <= 0) {
+      clearInterval(timer);
+      timer = null;
+      autoRevealAndNext();
     }
   }, 1000);
+}
+
+function autoRevealAndNext() {
+  const q = questions[current];
+  const buttons = optionsEl.querySelectorAll(".quiz-option-btn");
+  buttons.forEach((b) => {
+    b.disabled = true;
+    if (b.textContent === q.correct) {b.classList.add("correct");}
+  });
+  feedbackEl.innerHTML = `<p>⏰ Time's up! Correct answer: <strong>${q.correct}</strong></p>`;
+  nextButtonEl.textContent = current < questions.length - 1 ? "Next" : "See Results";
+  nextButtonEl.style.display = "inline-block";
+  nextButtonEl.onclick = nextQuestion;
+}
+
+function nextQuestion() {
+  current += 1;
+  if (current < questions.length) {
+    renderQuestion();
+  } else {
+    showSummary();
+  }
+}
+
+function gotoCategories() {
+  // redirección segura (no concatena a la URL actual)
+  location.assign(resolve("pages/categories.html"));
+}
+
+function showSummary() {
+  resetState();
+  const total = questions.length;
+  const percent = Math.round((score / total) * 100);
+  questionTextEl.textContent = "Great job! Here are your results:";
+
+  const summary = document.createElement("div");
+  summary.innerHTML = `
+    <p><strong>Correct:</strong> ${score}/${total} (${percent}%)</p>
+    <p>Want to try another category?</p>
+  `;
+  const link = document.createElement("a");
+  link.className = "btn";
+  link.href = resolve("pages/categories.html");
+  link.textContent = "Go to Categories";
+
+  summary.appendChild(link);
+  feedbackEl.appendChild(summary);
+}
+
+// ---------- Init ----------
+async function initQuiz() {
+  const params = new URLSearchParams(location.search);
+  const categoryId = params.get("category");
+  const categoryName = params.get("name");
+
+  categoryNameEl.textContent = categoryName ? decodeURIComponent(categoryName) : "Quiz";
+
+  if (!categoryId) {
+    questionTextEl.textContent = "Pick a category first.";
+    const header = document.querySelector(".quiz-header");
+    if (header) {header.style.display = "none";}
+    nextButtonEl.textContent = "Go to Categories";
+    nextButtonEl.style.display = "inline-block";
+    nextButtonEl.onclick = gotoCategories;
+    return;
+  }
+
+  try {
+    questions = await fetchQuizData(categoryId);
+  } catch (e) {
+    console.error("fetchQuizData failed:", e);
+    questions = [];
+  }
+
+  if (!questions.length) {
+    questionTextEl.textContent = "Failed to load questions. Please try another category.";
+    const header = document.querySelector(".quiz-header");
+    if (header) {header.style.display = "none";}
+    nextButtonEl.textContent = "Go to Categories";
+    nextButtonEl.style.display = "inline-block";
+    nextButtonEl.onclick = gotoCategories;
+    return;
+  }
+
+  current = 0;
+  score = 0;
+  if (scoreValueEl) {scoreValueEl.textContent = "0";}
+  qTotalEl.textContent = String(questions.length);
+  renderQuestion();
+}
+
+// ---- Auto-init (una sola vez) ----
+function safeInit() {
+  initQuiz().catch((err) => {
+    console.error("Quiz init error:", err);
+    if (questionTextEl) {questionTextEl.textContent = "We couldn't load the quiz right now. Please try again.";}
+    const header = document.querySelector(".quiz-header");
+    if (header) {header.style.display = "none";}
+  });
+}
+
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", safeInit, { once: true });
+} else {
+  safeInit();
 }

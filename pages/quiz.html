@@ -3,43 +3,46 @@
 
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Quiz - WonderWorld Learning</title>
-  <link rel="stylesheet" href="../css/base.css">
-  <script type="module" src="../js/app.js"></script>
-  <script type="module" src="../js/quiz.mjs"></script>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Quiz | WonderWorld Learning</title>
+
+  <!-- CSS (base común + estilos de la página) -->
+  <link rel="stylesheet" href="/css/base.css">
+  <link rel="stylesheet" href="/css/pages/quiz.css">
 </head>
 
 <body>
   <a class="skip-link" href="#main">Skip to main content</a>
   <header id="main-header"></header>
 
-  <main id="main" class="content-section reveal">
-    
-    <div class="quiz-wrapper">
+  <main id="main" role="main">
+    <section class="quiz-wrapper" aria-live="polite">
       <header class="quiz-header">
         <div class="quiz-status">
-          <span id="question-current">1</span> / <span id="question-total">10</span>
+          <span id="category-name">Loading…</span> ·
+          <span id="question-counter"><span id="question-index">0</span>/<span id="question-total">0</span></span>
         </div>
-        <div class="quiz-timer" id="quiz-timer" aria-live="polite">
-          <span>30</span>
-        </div>
+        <div class="quiz-timer" aria-label="Time left"><span id="timer">0</span>s</div>
+        <div class="quiz-score">Score: <strong id="score-value">0</strong></div>
       </header>
 
-      <section class="quiz-body">
+      <div class="quiz-body">
         <h2 id="question-text">Loading question…</h2>
-        <div class="quiz-options" id="quiz-options"></div>
-      </section>
+        <div id="options" class="quiz-options" role="group" aria-label="Answer choices"></div>
+      </div>
 
-      <footer class="quiz-footer">
-        <p id="feedback-text"></p>
-        <button id="next-question-btn" class="cta-button" style="display:none;">Next Question</button>
-      </footer>
-    </div>
+      <div class="quiz-footer">
+        <button id="next-question-btn" style="display:none">Next</button>
+        <div id="feedback" aria-live="polite"></div>
+      </div>
+    </section>
   </main>
 
   <footer id="main-footer"></footer>
 
+  <!-- JS (layout global + módulo del quiz) -->
+  <script type="module" src="/js/app.js"></script>
+  <script type="module" src="/js/quiz.mjs"></script>
 </body>
 
 </html>
