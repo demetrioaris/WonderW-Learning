@@ -76,24 +76,73 @@ nav a,.dropdown-btn{color:#fff;text-decoration:none}
 .dropdown-menu li a,.mobile-panel .mobile-group ul li a{color:#fff;display:block;padding:.5rem 1rem;transition:background .25s}
 .dropdown-menu li a:hover,.mobile-panel .mobile-group ul li a:hover{background:rgba(255,255,255,.1)}
 
-.mobile-panel{position:static;background:var(--link-water-50);display:block;padding-top:2rem;max-height:0;overflow:hidden;opacity:0;transform:translateY(-8px);transition:max-height .35s,opacity .25s,transform .35s}
+.mobile-panel{
+  position:static;background:var(--link-water-50);display:block;padding-top:2rem;
+  max-height:0;overflow:hidden;opacity:0;transform:translateY(-8px);
+  transition:max-height .35s,opacity .25s,transform .35s
+}
 header.nav-open .mobile-panel{max-height:100vh;opacity:1;transform:translateY(0)}
 .mobile-panel ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:1.25rem;text-align:center}
 .mobile-panel a,.mobile-panel span{color:var(--tropical-blue-900);text-decoration:none;font-size:1.25rem}
-.mobile-panel .mobile-group ul{padding:.5rem;border-radius:6px;display:flex;flex-direction:column;gap:.5rem;max-height:0;overflow:hidden;opacity:0;transition:max-height .3s,opacity .25s}
+.mobile-panel .mobile-group ul{
+  padding:.5rem;border-radius:6px;display:flex;flex-direction:column;gap:.5rem;
+  max-height:0;overflow:hidden;opacity:0;transition:max-height .3s,opacity .25s
+}
 .mobile-panel .mobile-accordion{background:transparent;border:none;padding:0;margin:0;color:var(--tropical-blue-900);cursor:pointer;font-size:1.25rem}
 .mobile-panel .mobile-group.open ul{max-height:300px;opacity:1}
 
-/* Hamburguesa */
-.menu-toggle{position:absolute;right:1rem;top:50%;transform:translateY(-50%);background:transparent;border:none;cursor:pointer;width:32px;height:24px;display:flex;align-items:center;justify-content:center}
-.menu-toggle span,.menu-toggle::before,.menu-toggle::after{content:"";display:block;width:24px;height:2px;background:#fff;transition:all .3s ease;position:absolute}
-.menu-toggle span{position:relative}
-.menu-toggle::before{transform:translateY(-8px)}
-.menu-toggle::after{transform:translateY(8px)}
-header.nav-open .menu-toggle span{background:transparent}
-header.nav-open .menu-toggle::before{transform:rotate(45deg)}
-header.nav-open .menu-toggle::after{transform:rotate(-45deg)}
-.menu-toggle:focus-visible{outline:2px solid var(--link-water-400);outline-offset:2px}
+/* ================================
+  Hamburguesa (nueva)
+  (Asegúrate de usar 3 spans .bar dentro del botón)
+================================ */
+.menu-toggle {
+  position:absolute;
+  right:1rem;
+  top:50%;
+  transform:translateY(-50%);
+  width:40px;
+  height:40px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  background:transparent;
+  border:0;
+  cursor:pointer;
+  z-index:1001; /* para que no lo tape el panel móvil */
+}
+
+/* Cuando el header tiene la clase nav-open */
+header.nav-open .menu-toggle {
+  top: 8%;
+  transform: translateY(0); /* ajusta si quieres que se centre de otra forma */
+}
+
+.menu-toggle .bar{
+  position:absolute;
+  left:50%;
+  width:24px;
+  height:2px;
+  background:#fff;
+  transform:translateX(-50%);
+  transform-origin:center;
+  transition:transform .25s ease, opacity .2s ease, background-color .2s ease;
+}
+
+/* Posiciones en estado cerrado */
+.menu-toggle .bar:nth-child(1){ transform:translate(-50%, -8px); }
+.menu-toggle .bar:nth-child(2){ transform:translate(-50%,  0); }
+.menu-toggle .bar:nth-child(3){ transform:translate(-50%,  8px); }
+
+/* Estado abierto (cruz) */
+.menu-toggle.is-active .bar:nth-child(1){ transform:translate(-50%, 0) rotate(45deg); }
+.menu-toggle.is-active .bar:nth-child(2){ opacity:0; transform:translate(-50%, 0) scaleX(0); }
+.menu-toggle.is-active .bar:nth-child(3){ transform:translate(-50%, 0) rotate(-45deg); }
+
+/* Accesibilidad foco */
+.menu-toggle:focus-visible{
+  outline:2px solid var(--link-water-400);
+  outline-offset:2px;
+}  /* ←←← CERRADA (antes faltaba esta llave) */
 
 /* ================================
   Layout común
@@ -105,17 +154,35 @@ main{max-width:1100px;margin:0 auto;padding:2rem 1rem}
 /* ================================
   Utilidades comunes
 ================================ */
-.btn{display:inline-block;padding:.6rem 1.2rem;border-radius:999px;background:var(--tropical-blue-800);color:#fff;text-decoration:none;border:none;cursor:pointer;transition:transform .12s ease,background-color .2s ease}
+.btn{
+  display:inline-block;padding:.6rem 1.2rem;border-radius:999px;
+  background:var(--tropical-blue-800);color:#fff;text-decoration:none;border:none;
+  cursor:pointer;transition:transform .12s ease,background-color .2s ease
+}
 .btn:hover{background:var(--tropical-blue-900);transform:translateY(-1px)}
 
 .search-form{display:grid;grid-template-columns:1fr auto;gap:.5rem;max-width:720px;margin:0 auto 1rem}
-.search-form input[type="search"]{padding:.75rem .9rem;border:1px solid var(--link-water-300);border-radius:10px;background:#fff;color:var(--tropical-blue-950)}
-.search-form .search-btn{padding:.75rem 1rem;border-radius:10px;border:none;background:var(--tropical-blue-700);color:#fff;cursor:pointer;transition:transform .15s ease,background-color .2s ease}
+.search-form input[type="search"]{
+  padding:.75rem .9rem;border:1px solid var(--link-water-300);border-radius:10px;
+  background:#fff;color:var(--tropical-blue-950)
+}
+.search-form .search-btn{
+  padding:.75rem 1rem;border-radius:10px;border:none;background:var(--tropical-blue-700);
+  color:#fff;cursor:pointer;transition:transform .15s ease,background-color .2s ease
+}
 .search-form .search-btn:hover{transform:translateY(-1px)}
 .search-form .search-btn:focus-visible{outline:2px solid var(--link-water-400);outline-offset:2px}
 
 /* ================================
   Media Queries
 ================================ */
-@media (min-width:901px){.nav-desktop{display:block}.menu-toggle{display:none}.mobile-panel{display:none!important}}
-@media (max-width:900px){.menu-toggle{display:inline-block}.nav-desktop{display:none}.dropdown-menu{position:static;border-radius:6px}}
+@media (min-width:901px){
+  .nav-desktop{display:block}
+  .menu-toggle{display:none}
+  .mobile-panel{display:none!important}
+}
+@media (max-width:900px){
+  .menu-toggle{display:inline-block}
+  .nav-desktop{display:none}
+  .dropdown-menu{position:static;border-radius:6px}
+}
