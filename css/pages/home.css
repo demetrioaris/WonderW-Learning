@@ -39,3 +39,32 @@
 .activity-card-home p{flex-grow:1;font-size:.95rem;color:var(--tropical-blue-950)}
 .activity-card-home .btn{margin-top:1rem}
 a.activity-card-home,a.activity-card-home:link,a.activity-card-home:visited{color:inherit;text-decoration:none}
+
+.cta-button {
+  display: inline-block;
+  padding: 12px 28px;
+  font-family: "Helvetica Neue", Arial, sans-serif;
+  font-size: 16px;
+  font-weight: bold;
+  color: #ffffff;
+  background: linear-gradient(45deg, #ff6b6b, #f06595); /* Gradiente de rojo a rosa */
+  text-align: center;
+  text-decoration: none;
+  border: none;
+  border-radius: 50px; /* Completamente redondeado (píldora) */
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease;
+}
+
+/* Efecto al pasar el cursor por encima */
+.cta-button:hover {
+  box-shadow: 0 7px 15px rgba(0, 0, 0, 0.25);
+  transform: scale(1.05);
+}
+
+/* Efecto al hacer clic */
+.cta-button:active {
+  transform: scale(1);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}

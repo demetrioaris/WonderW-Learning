@@ -85,6 +85,41 @@
 }
 .quiz-option-btn:disabled{ cursor:not-allowed; opacity:.9; }
 
+/* Estilos para la Tarjeta de Datos del Animal */
+
+.fact-card {
+  margin-top: 2rem;
+  padding: 1.5rem;
+  background-color: #eef7ff; /* Un azul muy claro */
+  border-left: 6px solid #007bff; /* Un acento de color */
+  border-radius: 8px;
+}
+
+.fact-card h3 {
+  margin-top: 0;
+  margin-bottom: 1rem;
+  color: #0056b3; /* Un azul más oscuro */
+}
+
+.fact-list {
+  list-style-type: none; /* Quita los puntos por defecto */
+  padding-left: 0;
+  margin-bottom: 0;
+}
+
+.fact-list li {
+  padding: 0.5rem 0;
+  color: #333;
+  line-height: 1.5;
+}
+
+/* Un pequeño detalle visual para cada dato */
+.fact-list li::before {
+  content: "🐾"; /* Emoji de huella como viñeta */
+  margin-right: 10px;
+  color: #007bff;
+}
+
 /* Responsive */
 @media (min-width: 901px){
   .quiz-options{ grid-template-columns: 1fr 1fr; }
