@@ -519,43 +519,129 @@ main {
 .activity-card .btn:hover {
   background: var(--primary-dark, #0056b3);
 }
+/* === Quiz — refinamientos de UI y accesibilidad === */
 
-/* --- Quiz Styles --- */
+/* Alineación y respiración extra */
 .quiz-wrapper {
-  max-width: 800px;
-  margin: 2rem auto;
-  padding: 2rem;
-  background-color: #ffffff;
-  border-radius: 8px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+  max-width: 860px;            /* un poco más ancho para opciones en 2 cols */
+  padding: 2.25rem;
 }
 
+/* Cabecera: status + timer */
 .quiz-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 2rem;
-  padding-bottom: 1rem;
-  border-bottom: 1px solid #eee;
-  font-family: 'Roboto Mono', monospace;
-}
-
-.quiz-status, .quiz-timer {
-  font-size: 0.9rem;
-  color: #555;
-}
-
-.quiz-body h2 {
-  font-family: 'Lora', serif;
-  font-size: 1.5rem;
-  margin-bottom: 2rem;
-  min-height: 50px;
-}
-
-.quiz-options {
-  display: grid;
-  grid-template-columns: 1fr;
   gap: 1rem;
+}
+
+.quiz-status {
+  font-size: 1rem;
+  color: var(--tropical-blue-900);
+}
+
+/* Timer pill (usa el <span> interno si existe, si no aplica al contenedor) */
+.quiz-timer,
+.quiz-timer span {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 64px;
+  padding: .35rem .65rem;
+  border-radius: 999px;
+  background: var(--tropical-blue-700);
+  color: var(--tropical-blue-50);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Título de la pregunta más legible */
+.quiz-body h2 {
+  line-height: 1.35;
+  color: var(--tropical-blue-950);
+}
+
+/* Opciones: mejor contraste, foco visible y micro-animación */
+.quiz-option-btn {
+  background-color: var(--link-water-50);
+  border: 1px solid var(--link-water-300);
+  border-radius: 10px;
+  padding: 1rem 1.1rem;
+  box-shadow: 0 1px 0 rgba(0,0,0,0.02);
+  transition:
+    background-color .2s ease,
+    border-color .2s ease,
+    transform .12s ease,
+    box-shadow .12s ease;
+}
+.quiz-option-btn:hover {
+  background-color: var(--link-water-200);
+  border-color: var(--link-water-400);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.06);
+}
+.quiz-option-btn:focus-visible {
+  outline: 2px solid var(--link-water-400);
+  outline-offset: 3px;
+}
+
+/* Estados correcto/incorrecto con animación */
+@keyframes quiz-bounce-in {
+  0%   { transform: scale(.98); }
+  60%  { transform: scale(1.02); }
+  100% { transform: scale(1); }
+}
+@keyframes quiz-shake {
+  0%,100% { transform: translateX(0); }
+  20%     { transform: translateX(-4px); }
+  40%     { transform: translateX(4px); }
+  60%     { transform: translateX(-3px); }
+  80%     { transform: translateX(3px); }
+}
+.quiz-option-btn.correct {
+  background-color: #2ecc71;
+  border-color: #27ae60;
+  color: #fff;
+  animation: quiz-bounce-in .18s ease-out both;
+}
+.quiz-option-btn.incorrect {
+  background-color: #e74c3c;
+  border-color: #c0392b;
+  color: #fff;
+  animation: quiz-shake .22s ease-in-out both;
+}
+.quiz-option-btn:disabled {
+  opacity: .9;
+}
+
+/* Footer y botón siguiente */
+.quiz-footer {
+  display: flex;
+  flex-direction: column;
+  gap: .75rem;
+  align-items: center;
+}
+#next-question-btn,
+.quiz-footer .cta-button {
+  border: none;
+  border-radius: 999px;
+  padding: .8rem 1.25rem;
+  background: var(--tropical-blue-800);
+  color: var(--tropical-blue-50);
+  font-size: 1rem;
+  transition: transform .12s ease, background-color .2s ease;
+}
+#next-question-btn:hover,
+.quiz-footer .cta-button:hover {
+  background: var(--tropical-blue-900);
+  transform: translateY(-1px);
+}
+#next-question-btn:focus-visible,
+.quiz-footer .cta-button:focus-visible {
+  outline: 2px solid var(--link-water-400);
+  outline-offset: 3px;
+}
+
+/* Mensaje de feedback */
+#feedback-text {
+  color: var(--tropical-blue-900);
+  min-height: 1.25rem; /* evita salto cuando aparece */
 }
 
 /* Dashboard */ 
@@ -726,4 +812,166 @@ main {
     transform: none !important;
     opacity: 1 !important;
   }
+}
+
+/* Accessible utility for off-screen labels */
+.visually-hidden {
+  position: absolute !important;
+  height: 1px; width: 1px;
+  overflow: hidden;
+  clip: rect(1px, 1px, 1px, 1px);
+  white-space: nowrap; /* prevent line breaks */
+}
+
+/* Section divider */
+.section-divider {
+  margin: 2rem auto;
+  border: 0;
+  height: 1px;
+  background: linear-gradient(to right, transparent, var(--link-water-300), transparent);
+  max-width: 720px;
+}
+
+/* Simple search form styles (Quiz) */
+.search-form {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: .5rem;
+  max-width: 720px;
+  margin: 0 auto 1rem auto;
+}
+.search-form input[type="search"] {
+  padding: .75rem .9rem;
+  border: 1px solid var(--link-water-300);
+  border-radius: 10px;
+  background: var(--white);
+  color: var(--tropical-blue-950);
+}
+.search-form .search-btn {
+  padding: .75rem 1rem;
+  border-radius: 10px;
+  border: none;
+  background: var(--tropical-blue-700);
+  color: var(--tropical-blue-50);
+  cursor: pointer;
+  transition: transform .15s ease, background-color .2s ease;
+}
+.search-form .search-btn:hover { transform: translateY(-1px); }
+.search-form .search-btn:focus-visible {
+  outline: 2px solid var(--link-water-400);
+  outline-offset: 2px;
+}
+
+/* Activity cards: better focus/hover without changing current look */
+.activity-card {
+  text-decoration: none;
+  outline: none;
+}
+.activity-card:focus-visible {
+  outline: 2px solid var(--link-water-400);
+  outline-offset: 3px;
+}
+
+@media (max-width: 520px) {
+  .search-form {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* === Nature Lab (Guess the Animal) === */
+#game-area {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+#game-area img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+/* Opciones de respuesta */
+.quiz-option-btn {
+  padding: 1rem;
+  font-size: 1rem;
+  background-color: var(--link-water-50);
+  border: 1px solid var(--link-water-300);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color .2s ease, border-color .2s ease, transform .15s ease;
+}
+.quiz-option-btn:hover {
+  background-color: var(--link-water-200);
+  transform: translateY(-2px);
+}
+.quiz-option-btn.correct {
+  background-color: #2ecc71;
+  border-color: #27ae60;
+  color: #fff;
+}
+.quiz-option-btn.incorrect {
+  background-color: #e74c3c;
+  border-color: #c0392b;
+  color: #fff;
+}
+.quiz-option-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.8;
+}
+
+/* Feedback */
+#feedback p {
+  margin: 0.5rem 0;
+  font-size: 1rem;
+}
+#feedback .btn {
+  background-color: var(--tropical-blue-700);
+  color: var(--tropical-blue-50);
+  padding: 0.6rem 1.2rem;
+  border-radius: 8px;
+  text-decoration: none;
+}
+#feedback .btn:hover {
+  background-color: var(--tropical-blue-800);
+}
+
+/* === Nature Cards === */
+#cards-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+}
+
+#cards-container .activity-card {
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+  padding: 1rem;
+  border-radius: 12px;
+  background-color: var(--tropical-blue-50);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  transition: transform .2s ease, box-shadow .2s ease;
+}
+#cards-container .activity-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 6px 18px rgba(0,0,0,0.15);
+}
+#cards-container .activity-card img {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+  border-radius: 8px;
+  margin-bottom: 0.75rem;
+}
+#cards-container .activity-card h3 {
+  margin: 0.25rem 0;
+  color: var(--tropical-blue-950);
+  font-size: 1.1rem;
+}
+#cards-container .activity-card p {
+  flex-grow: 1;
+  font-size: 0.9rem;
+  color: var(--tropical-blue-900);
 }

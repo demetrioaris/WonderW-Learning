@@ -6,32 +6,35 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Quiz - WonderWorld Learning</title>
   <link rel="stylesheet" href="../css/base.css">
-  <script src="../js/app.js" type="module"></script>
+  <script type="module" src="../js/app.js"></script>
+  <script type="module" src="../js/quiz.mjs"></script>
 </head>
 
 <body>
   <a class="skip-link" href="#main">Skip to main content</a>
   <header id="main-header"></header>
 
-  <main id="main">
+  <main id="main" class="content-section reveal">
     <div class="quiz-wrapper">
       <header class="quiz-header">
         <div class="quiz-status">
-          <span>Question <span id="question-current">1</span> of <span id="question-total">10</span></span>
-          <span>Score: <span id="score-value">0</span></span>
+          <span id="question-current">1</span> / <span id="question-total">10</span>
         </div>
-        <div id="quiz-timer" class="quiz-timer">Time: <span>30</span></div>
+        <div class="quiz-timer" id="quiz-timer" aria-live="polite">
+          <span>30</span>
+        </div>
       </header>
 
       <section class="quiz-body">
-        <h2 id="question-text">Loading question...</h2>
-        <div id="quiz-options" class="quiz-options">
-        </div>
+        <h2 id="question-text">Loading question…</h2>
+        <div class="quiz-options" id="quiz-options"></div>
       </section>
+
       <footer class="quiz-footer">
         <p id="feedback-text"></p>
-        <button id="next-question-btn" class="cta-button" style="display: none;">Next Question</button>
+        <button id="next-question-btn" class="cta-button" style="display:none;">Next Question</button>
       </footer>
+    </div>
   </main>
 
   <footer id="main-footer"></footer>
