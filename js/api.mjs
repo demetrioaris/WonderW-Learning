@@ -70,48 +70,14 @@ export async function getWikipediaSummary(topic) {
   };
 }
 
-/**
- * iDigBio v2 Search Media (POST). Devuelve una lista simple de objetos con imagen y metadatos.
- * @param {Object} opts
- * @param {string} [opts.taxon="Mammalia"] - Filtro por táxon (ej. "Aves", "Reptilia")
- * @param {number} [opts.limit=8] - Límite de resultados
- * @returns {Promise<Array<{id:string, img:string, title:string, country?:string, locality?:string}>>}
- */
-export async function fetchIdigbioMedia({ taxon = "Mammalia", limit = 8 } = {}) {
-  const endpoint = "https://search.idigbio.org/v2/search/media";
-  const body = {
-    rq: { "scientificname": taxon },
-    limit,
-    // Solo media con URL
-    // (idb a veces devuelve sin mediarecords. Filtraremos luego en cliente también)
-  };
-
-  try {
-    const res = await fetch(endpoint, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body)
-    });
-    if (!res.ok) {throw new Error(`iDigBio HTTP ${res.status}`);}
-    const json = await res.json();
-
-    const items = Array.isArray(json.items) ? json.items : [];
-    return items
-      .map((it) => {
-        const media = it?.media?.[0] || {};
-        const rec   = it?.indexTerms || {};
-        const img   = media?.accessuri || media?.thumbnailuri || "";
-        return {
-          id: it.uuid || media?.uuid || "",
-          img,
-          title: rec.scientificname || rec.family || "Unknown specimen",
-          country: rec.country || "",
-          locality: rec.locality || ""
-        };
-      })
-      .filter((x) => x.img);
-  } catch (err) {
-    console.error("iDigBio error:", err);
-    return [];
-  }
+// Animals API (API Ninjas): https://api.api-ninjas.com/v1/animals
+// Requiere header X-Api-Key y parámetro ?name=  (devuelve hasta 10 coincidencias)
+export async function fetchNinjaAnimalByName(name, apiKey) {
+  if (!apiKey) {throw new Error("Missing API Ninjas key");}
+  const url = `https://api.api-ninjas.com/v1/animals?name=${encodeURIComponent(name)}`;
+  const res = await fetch(url, { headers: { "X-Api-Key": apiKey } });
+  if (!res.ok) {throw new Error(`API Ninjas HTTP ${res.status}`);}
+  const data = await res.json();
+  // Toma el primer match (suele ser el más relevante)
+  return Array.isArray(data) && data.length ? data[0] : null;
 }

@@ -1,85 +1,210 @@
 // js/nature-lab.mjs
-import { fetchIdigbioMedia } from "./api.mjs";
+// Guess the Animal — 2 opciones, imágenes locales desde JSON y facts vía proxy secreto (/api/animals)
 
-const $ = (sel, ctx = document) => ctx.querySelector(sel);
+import { $, resolveAbs, safeInit } from "./utils.mjs";
+import { makeCountdown, shuffle, sampleDistinct } from "./gametools.mjs";
 
-// Barajar (Fisher–Yates)
-function shuffle(arr) {
-  const a = arr.slice();
-  for (let i = a.length - 1; i > 0; i--) {
-    const j = (Math.random() * (i + 1)) | 0;
-    [a[i], a[j]] = [a[j], a[i]];
+// ---------- Config ----------
+const SECS_PER_ROUND = 20;
+const FACTS_ENDPOINT = "/api/animals"; // Cloudflare Pages/Workers proxy que oculta tu API key
+
+// ---------- Carga del dataset (JSON) ----------
+async function loadAnimalsPool() {
+  // Probamos primero en public/data/ y luego en la raíz del repo
+  const candidates = ["/public/data/animals.json", "animals.json"];
+  let data = null;
+
+  for (const rel of candidates) {
+    const url = resolveAbs(rel);
+    const res = await fetch(url, { cache: "no-store" });
+    if (res.ok) {
+      data = await res.json();
+      break;
+    }
   }
-  return a;
+
+  if (!Array.isArray(data)) {throw new Error("Animals JSON not found in expected paths");}
+
+  // Normaliza y vuelve absolutas las rutas de las imágenes (evita 404 desde /pages/)
+  return data
+    .filter(x => x && x.title && x.img)
+    .map(x => ({
+      title: x.title,
+      api: x.api || x.title,        // nombre a consultar en la API (puede diferir del mostrado)
+      img: resolveAbs(x.img)
+    }));
 }
 
-function renderRound({ container, specimen, options }) {
-  container.innerHTML = `
+// ---------- Facts (API Ninjas vía proxy) ----------
+async function fetchFactsViaProxy(commonName) {
+  const res = await fetch(`${FACTS_ENDPOINT}?name=${encodeURIComponent(commonName)}`);
+  if (!res.ok) {throw new Error(`Proxy HTTP ${res.status}`);}
+  const data = await res.json();
+  return Array.isArray(data) && data.length ? data[0] : null;
+}
+
+function formatFacts(animal) {
+  if (!animal) {return "";}
+  const tx = animal.taxonomy || {};
+  const ch = animal.characteristics || {};
+  const locs = Array.isArray(animal.locations) ? animal.locations : [];
+
+  const lines = [];
+  if (ch.slogan)          {lines.push(`Fun fact: ${ch.slogan}.`);}
+  if (ch.habitat)         {lines.push(`Habitat: ${ch.habitat}.`);}
+  if (ch.diet)            {lines.push(`Diet: ${ch.diet}.`);}
+  if (locs.length)        {lines.push(`Where: ${locs.join(", ")}.`);}
+  if (ch.top_speed)       {lines.push(`Top speed: ${ch.top_speed}.`);}
+  if (ch.lifespan)        {lines.push(`Lifespan: ${ch.lifespan}.`);}
+  if (tx.scientific_name) {lines.push(`Scientific name: ${tx.scientific_name}.`);}
+
+  if (!lines.length) {return "";}
+  return `
+    <div class="fact-card">
+      <h3>About this animal</h3>
+      <ul class="fact-list">
+        ${lines.map(li => `<li>${li}</li>`).join("")}
+      </ul>
+    </div>
+  `;
+}
+
+// ---------- Estado ----------
+let containerRef = null;
+let POOL = [];
+let countdown = null;
+
+// ---------- Render ----------
+function renderRound({ specimen, options }) {
+  containerRef.innerHTML = `
     <div class="quiz-header">
       <div class="quiz-status">Round</div>
-      <div class="quiz-timer" aria-live="polite">No timer</div>
+      <div class="quiz-timer" aria-live="polite"><span id="nl-timer">${SECS_PER_ROUND}</span>s</div>
     </div>
+
     <div class="quiz-body">
       <h2>What animal is this?</h2>
-      <div style="display:flex;justify-content:center;margin-bottom:1rem;">
-        <img src="${specimen.img}" alt="Specimen image" style="max-height:300px;max-width:100%;border-radius:8px;">
+      <div class="animal-image">
+        <img src="${specimen.img}" alt="Specimen: ${specimen.title}" loading="lazy">
       </div>
       <div class="quiz-options" id="options"></div>
     </div>
+
     <div class="quiz-footer" id="feedback"></div>
   `;
 
-  const optsEl = $("#options", container);
+  const optsEl = $("#options", containerRef);
   options.forEach(opt => {
     const btn = document.createElement("button");
     btn.className = "quiz-option-btn";
     btn.type = "button";
     btn.textContent = opt.title;
-    btn.addEventListener("click", () => onAnswer(btn, opt.correct, container, specimen));
+    btn.addEventListener("click", () => onAnswer(btn, opt.correct, specimen));
     optsEl.appendChild(btn);
   });
+
+  const timerSpan = $("#nl-timer", containerRef);
+  countdown = makeCountdown({
+    seconds: SECS_PER_ROUND,
+    onTick: (s) => { if (timerSpan) {timerSpan.textContent = String(s);} },
+    onDone: () => timeUp(specimen)
+  }).start();
 }
 
-function onAnswer(btn, correct, container, specimen) {
-  const all = container.querySelectorAll(".quiz-option-btn");
-  all.forEach(b => (b.disabled = true));
+async function onAnswer(btn, correct, specimen) {
+  containerRef.querySelectorAll(".quiz-option-btn").forEach(b => (b.disabled = true));
+  if (countdown) { countdown.stop(); countdown = null; }
+
+  const fb = $("#feedback", containerRef);
 
   if (correct) {
     btn.classList.add("correct");
-    $("#feedback", container).innerHTML = `
-      <p><strong>Correct!</strong> ${specimen.title}${specimen.country ? " — " + specimen.country : ""}</p>
-      <a class="btn" style="display:inline-block;margin-top:.5rem;" href="" onclick="location.reload();return false;">Play again</a>
-    `;
+    fb.innerHTML = `<p><strong>✅ Correct!</strong> ${specimen.title}</p>`;
   } else {
     btn.classList.add("incorrect");
-    $("#feedback", container).innerHTML = `
-      <p><strong>Oops!</strong> The correct answer was: <em>${specimen.title}</em>.</p>
-      <a class="btn" style="display:inline-block;margin-top:.5rem;" href="" onclick="location.reload();return false;">Try another</a>
-    `;
+    // marca la correcta
+    containerRef.querySelectorAll(".quiz-option-btn").forEach(b => {
+      if (b.textContent === specimen.title) {b.classList.add("correct");}
+    });
+    fb.innerHTML = `<p><strong>❌ Oops!</strong> The correct answer was: <em>${specimen.title}</em>.</p>`;
+  }
+
+  await appendFactsAndAgain(fb, specimen, correct);
+}
+
+function timeUp(specimen) {
+  containerRef.querySelectorAll(".quiz-option-btn").forEach(b => (b.disabled = true));
+  const fb = $("#feedback", containerRef);
+  // marca correcta
+  containerRef.querySelectorAll(".quiz-option-btn").forEach(b => {
+    if (b.textContent === specimen.title) {b.classList.add("correct");}
+  });
+  fb.innerHTML = `<p>⏰ Time's up! Correct answer: <strong>${specimen.title}</strong></p>`;
+  appendFactsAndAgain(fb, specimen, false);
+}
+
+async function appendFactsAndAgain(fb, specimen, correct) {
+  const factsBox = document.createElement("div");
+  factsBox.className = "fact-card";
+  factsBox.textContent = "Fetching facts…";
+  fb.appendChild(factsBox);
+
+  const again = document.createElement("button");
+  again.id = "play-again-btn";
+  again.className = "btn";
+  again.style.marginTop = ".5rem";
+  again.textContent = correct ? "Play again" : "Try another";
+  again.addEventListener("click", newRound, { once: true });
+  fb.appendChild(again);
+
+  try {
+    const apiName = specimen.api || specimen.title;
+    const animal = await fetchFactsViaProxy(apiName);
+    const html = formatFacts(animal);
+    factsBox.innerHTML = html || "No extra facts available for this animal.";
+  } catch (err) {
+    console.warn("Animals proxy error:", err);
+    factsBox.textContent = "We couldn't fetch facts right now.";
   }
 }
 
-export async function initNatureLab() {
-  const container = document.getElementById("game-area");
-  if (!container) {return;}
-
-  // Carga algunos especímenes (puedes cambiar 'Mammalia' por otro taxón).
-  const pool = await fetchIdigbioMedia({ taxon: "Mammalia", limit: 12 });
-  const items = pool.filter(x => x.img).slice(0, 8);
-  if (items.length < 4) {
-    container.innerHTML = "<p>We couldn't load enough specimens. Please try again later.</p>";
+// ---------- Lógica de ronda ----------
+function newRound() {
+  if (!POOL || POOL.length < 2) {
+    containerRef.innerHTML = "<p>We couldn't load enough animals. Please add more images.</p>";
     return;
   }
 
-  // Elige 1 correcta y 3 distractores
-  const shuffled = shuffle(items);
-  const specimen = shuffled[0];
-  const distractors = shuffled.slice(1, 4);
-
+  // Solo 2 opciones: 1 correcta + 1 distractor
+  const two = sampleDistinct(POOL, 2);
+  const specimen = two[0];
+  const distractor = two[1];
   const options = shuffle([
-    { title: specimen.title, correct: true },
-    ...distractors.map(d => ({ title: d.title, correct: false }))
+    { title: specimen.title,   correct: true  },
+    { title: distractor.title, correct: false }
   ]);
 
-  renderRound({ container, specimen, options });
+  renderRound({ specimen, options });
 }
+
+// ---------- Init ----------
+export async function initNatureLab() {
+  containerRef = document.getElementById("game-area");
+  if (!containerRef) {return;}
+
+  try {
+    POOL = await loadAnimalsPool();
+  } catch (e) {
+    console.error("Failed to load animals.json:", e);
+    containerRef.innerHTML = "<p>We couldn't load the animal list. Please try again later.</p>";
+    return;
+  }
+
+  newRound();
+}
+
+// Auto-init (usa util común)
+safeInit(initNatureLab, () => {
+  const c = document.getElementById("game-area");
+  if (c) {c.innerHTML = "<p>We couldn't load the game right now. Please try again later.</p>";}
+});

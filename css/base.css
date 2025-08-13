@@ -1,5 +1,5 @@
 /* ================================
-   Base tokens (colores, tipografía, sombras)
+  Base tokens (colores, tipografía, sombras)
 ================================ */
 :root{
   /* Colores principales */
@@ -20,7 +20,7 @@
 }
 
 /* ================================
-   Reset + Accesibilidad + Tipografía
+  Reset + Accesibilidad + Tipografía
 ================================ */
 *{box-sizing:border-box}
 html{scroll-behavior:smooth}
@@ -38,7 +38,7 @@ p{font-family:"Lora",serif;font-weight:400}
 .visually-hidden{position:absolute!important;height:1px;width:1px;overflow:hidden;clip:rect(1px,1px,1px,1px);white-space:nowrap}
 
 /* ================================
-   Header / Nav / Footer (comunes)
+  Header / Nav / Footer (comunes)
 ================================ */
 header,footer{background:var(--tropical-blue-900);color:#fff;padding:1rem}
 header{position:relative;z-index:1000}
@@ -96,14 +96,14 @@ header.nav-open .menu-toggle::after{transform:rotate(-45deg)}
 .menu-toggle:focus-visible{outline:2px solid var(--link-water-400);outline-offset:2px}
 
 /* ================================
-   Layout común
+  Layout común
 ================================ */
 main{max-width:1100px;margin:0 auto;padding:2rem 1rem}
 .content-section{padding:50px 20px;text-align:center}
 .section-divider{margin:2rem auto;border:0;height:1px;background:linear-gradient(to right,transparent,var(--link-water-300),transparent);max-width:720px}
 
 /* ================================
-   Utilidades comunes
+  Utilidades comunes
 ================================ */
 .btn{display:inline-block;padding:.6rem 1.2rem;border-radius:999px;background:var(--tropical-blue-800);color:#fff;text-decoration:none;border:none;cursor:pointer;transition:transform .12s ease,background-color .2s ease}
 .btn:hover{background:var(--tropical-blue-900);transform:translateY(-1px)}
@@ -115,7 +115,7 @@ main{max-width:1100px;margin:0 auto;padding:2rem 1rem}
 .search-form .search-btn:focus-visible{outline:2px solid var(--link-water-400);outline-offset:2px}
 
 /* ================================
-   Media Queries
+  Media Queries
 ================================ */
 @media (min-width:901px){.nav-desktop{display:block}.menu-toggle{display:none}.mobile-panel{display:none!important}}
 @media (max-width:900px){.menu-toggle{display:inline-block}.nav-desktop{display:none}.dropdown-menu{position:static;border-radius:6px}}
