@@ -1,0 +1,62 @@
+[
+  {
+    "icon": "🎨",
+    "title": "Learning Through Play",
+    "text": "Our games and stories make education an exciting adventure, not a chore.",
+    "image": "./public/images/home/learning.jpg"
+  },
+  {
+    "icon": "🧠",
+    "title": "Curriculum-Aligned",
+    "text": "Activities designed by experts to reinforce what's taught in the classroom.",
+    "image": "./public/images/home/curriculum.jpg"
+  },
+  {
+    "icon": "🏆",
+    "title": "Trackable Progress",
+    "text": "Use the parent dashboard to see achievements and areas for growth.",
+    "image": "./public/images/home/progress.jpg"
+  },
+  {
+    "icon": "✨",
+    "title": "Kid-Friendly Design",
+    "text": "Clear fonts, big buttons, and safe navigation for young learners.",
+    "image": "./public/images/home/kid-friendly.jpg"
+  },
+  {
+    "icon": "🔒",
+    "title": "Safe & Private",
+    "text": "We respect families with privacy-first choices and simple controls.",
+    "image": "./public/images/home/safe.jpg"
+  },
+  {
+    "icon": "🌎",
+    "title": "Global Topics",
+    "text": "Explore science, animals, history, and more from around the world.",
+    "image": "./public/images/home/global.jpg"
+  },
+  {
+    "icon": "⏱️",
+    "title": "Bite-Sized Sessions",
+    "text": "Short activities that fit your family’s routine and attention spans.",
+    "image": "./public/images/home/bitesized.jpg"
+  },
+  {
+    "icon": "🤝",
+    "title": "Parent Collaboration",
+    "text": "Helpful tips to support learning at home in minutes a day.",
+    "image": "./public/images/home/parent.jpg"
+  },
+  {
+    "icon": "🧩",
+    "title": "Adaptive Difficulty",
+    "text": "Challenges that grow with your child’s skills and confidence.",
+    "image": "./public/images/home/adaptive.jpg"
+  },
+  {
+    "icon": "💡",
+    "title": "Creative Thinking",
+    "text": "Puzzles and stories that spark curiosity and problem-solving.",
+    "image": "./public/images/home/creative.jpg"
+  }
+]

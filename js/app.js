@@ -23,6 +23,16 @@ async function main() {
     const { initCategories } = await import("./categories.mjs");
     initCategories();
   }
+
+  if (location.pathname.endsWith("/index.html") || location.pathname === "/") {
+    const { default: initFeatureRotator } = await import("./home.mjs");
+    initFeatureRotator();
+  }
+  if (location.pathname.endsWith("index.html") || location.pathname === "/") {
+    const { default: initHome } = await import("./home.mjs");
+    initHome();
+  }
+
 }
 
 main();

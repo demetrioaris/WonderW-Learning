@@ -21,37 +21,60 @@
   <main id="main">
     <section class="hero">
       <div class="hero-content">
-        <h1>Welcome to WonderWorld Learning</h1>
-        <p>Unlock a universe of knowledge with interactive activities designed for elementary education. Learning has
-          never been this fun!</p>
-        <a href="#activities" class="cta-button">Start Exploring!</a>
+        <h1 data-delay="0">Welcome to WonderWorld Learning</h1>
+        <p data-delay="120">
+          Unlock a universe of knowledge with interactive activities designed for elementary education.
+          Learning has never been this fun!
+        </p>
+        <a href="./pages/categories.html" class="cta-button" data-delay="240">Start Exploring!</a>
       </div>
     </section>
 
-    <section id="features" class="content-section">
+    <section id="features" class="content-section" data-src="./public/data/features.json">
       <h2>Why Choose WonderWorld?</h2>
-      <div class="feature-grid">
-        <div class="feature-item">
-          <div class="feature-icon">🎨</div>
-          <h3>Learning Through Play</h3>
-          <p>Our games and stories make education an exciting adventure, not a chore.</p>
-        </div>
-        <div class="feature-item">
-          <div class="feature-icon">🧠</div>
-          <h3>Curriculum-Aligned</h3>
-          <p>Activities designed by experts to reinforce what's being taught in the classroom.</p>
-        </div>
-        <div class="feature-item">
-          <div class="feature-icon">🏆</div>
-          <h3>Trackable Progress</h3>
-          <p>Use the parent dashboard to see your child's achievements and areas for growth.</p>
-        </div>
+
+      <div class="feature-rotator">
+        <article class="feature-item">
+          <img data-image src="" alt="" class="feature-image">
+          <div class="feature-icon" data-icon>⭐</div>
+          <h3 data-title>Loading…</h3>
+          <p data-text>Please wait while we prepare something awesome.</p>
+        </article>
+
+        <div class="feature-dots" aria-hidden="true"></div>
       </div>
     </section>
 
     <section id="activities" class="content-section">
       <h2>Our Activities</h2>
+
+      <div class="activities-grid">
+        <!-- Card 1 -->
+        <article class="activity-card">
+          <img src="./public/images/quiz.jpg" alt="Quiz Game" loading="lazy">
+          <h3>Trivia Quiz</h3>
+          <p>Test your knowledge across different categories and challenge your friends!</p>
+          <a href="./pages/quiz.html" class="btn">Play Now</a>
+        </article>
+
+        <!-- Card 2 -->
+        <article class="activity-card">
+          <img src="./public/images/memory-game.jpg" alt="Memory Game" loading="lazy">
+          <h3>Memory Match</h3>
+          <p>Sharpen your memory by matching pairs in the shortest time possible.</p>
+          <a href="./pages/memory.html" class="btn">Start Game</a>
+        </article>
+
+        <!-- Card 3 -->
+        <article class="activity-card">
+          <img src="./public/images/word-search.jpg" alt="Word Search Game" loading="lazy">
+          <h3>Word Search</h3>
+          <p>Find all the hidden words before the time runs out!</p>
+          <a href="./pages/wordsearch.html" class="btn">Try It</a>
+        </article>
+      </div>
     </section>
+
   </main>
   <footer id="main-footer"></footer>
 
