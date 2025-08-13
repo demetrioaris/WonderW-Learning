@@ -103,7 +103,9 @@ export async function initFeatureRotator() {
   const section = $("#features");
   if (!section) {return;}
 
-  const src = section.dataset.src || "./public/data/features.json";
+  const src = section.dataset.src 
+    ? new URL(section.dataset.src, document.baseURI).toString()
+    : new URL("./public/data/features.json", document.baseURI).toString();
   const card = $(".feature-item", section);
   const dotsWrap = $(".feature-dots", section);
 
@@ -177,17 +179,18 @@ export async function initFeatureRotator() {
 }
 
 // ---------- Init combinado ----------
+let __home_inited = false;
+
 export default async function initHome() {
+  if (__home_inited) {return;} // evita doble init si se importa en otro lado
+  __home_inited = true;
   initHomeAnimations();
   await initFeatureRotator();
 }
 
-// Auto-init si el archivo se carga directamente como módulo en index.html
-if (document.currentScript && document.currentScript.type === "module") {
-  // Ejecuta cuando el DOM esté listo por si el script va en <head>
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", () => initHome());
-  } else {
-    initHome();
-  }
+// Auto-init siempre que este módulo se cargue en la página
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", () => initHome());
+} else {
+  initHome();
 }
