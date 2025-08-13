@@ -82,12 +82,12 @@ function renderCardsList({ listEl, tplEl, items, buildHref, fields }) {
       const imgEl = node.querySelector("img");
       const h3El  = node.querySelector("h3, .category-name");
       const pEl   = node.querySelector("p, .category-desc");
-      const btn   = node.querySelector(".btn, .play-btn, a");
+      const linkEl = node.querySelector("a.activity-card-categ");
 
       if (imgEl) { imgEl.src = img; imgEl.alt = title; }
       if (h3El)  {h3El.textContent = title;}
       if (pEl)   {pEl.textContent = desc;}
-      if (btn)   {btn.href = href;}
+      if (linkEl) {linkEl.href = href;}
 
       listEl.appendChild(node);
     } else {

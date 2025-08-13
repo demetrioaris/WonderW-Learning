@@ -1,0 +1,17 @@
+/* Grid & Cards Categories */
+.activities-grid-categ{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+  gap:1.5rem;margin-top:1.5rem;
+}
+.activity-card-categ{
+  display:flex;flex-direction:column;text-align:center;background:var(--tropical-blue-200);
+  border-radius:15px;padding:30px;box-shadow:var(--box-shadow);transition:transform .3s,box-shadow .3s;
+  overflow:hidden;text-decoration:none;outline:none;
+}
+.activity-card-categ:hover{transform:translateY(-6px);box-shadow:0 10px 30px rgba(0,0,0,.12)}
+.activity-card-categ:focus-visible{outline:2px solid var(--link-water-400);outline-offset:3px}
+.activity-card-categ img{width:100%;height:160px;object-fit:cover;border-radius:8px;margin-bottom:1rem}
+.activity-card-categ h3{margin:.5rem 0;font-size:1.2rem;color:var(--tropical-blue-950)}
+.activity-card-categ p{flex-grow:1;font-size:.95rem;color:var(--tropical-blue-950)}
+.activity-card-categ .btn{margin-top:1rem}
+a.activity-card-categ,a.activity-card-categ:link,a.activity-card-categ:visited{color:inherit;text-decoration:none}

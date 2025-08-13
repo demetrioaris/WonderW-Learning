@@ -1,0 +1,41 @@
+/* Hero */
+.hero{
+  background:url("/public/images/hero-bg.jpg") center/cover no-repeat;
+  color:#fff;text-align:center;padding:4rem 1rem;
+  display:flex;align-items:center;justify-content:center;min-height:60vh;position:relative;
+}
+.hero::before{content:"";position:absolute;inset:0;background:rgba(0,0,0,.2)}
+.hero-content{position:relative;z-index:1;max-width:800px;background:rgba(0,0,0,.6);padding:2rem;border-radius:12px}
+.hero h1{font-size:3em;color:#fff}
+.hero p{font-size:1.2em;color:var(--link-water-50);max-width:600px;margin:20px auto}
+
+/* Feature Rotator */
+.feature-rotator{margin-top:1rem;display:grid;gap:1rem;justify-items:center}
+.feature-item{width:min(720px,100%);background:var(--link-water-950);border-radius:25px;border:2px solid var(--link-water-900);padding:1.25rem 1.5rem;box-shadow:var(--shadow);text-align:center;transition:opacity .3s,transform .3s}
+.feature-item h3,.feature-item p{color:#fff}
+.feature-item.fade-out{opacity:0;transform:translateY(6px)}
+.feature-item.fade-in{opacity:1;transform:translateY(0)}
+.feature-icon{font-size:2rem;line-height:1;margin-bottom:.5rem}
+.feature-dots{display:flex;gap:.5rem;justify-content:center;align-items:center}
+.feature-dot{width:10px;height:10px;border-radius:999px;border:none;background:var(--tropical-blue-300);cursor:pointer;transition:transform .15s,background-color .2s}
+.feature-dot:hover{transform:scale(1.12)}
+.feature-dot.active{background:var(--link-water-950)}
+.feature-image{width:100%;max-height:220px;object-fit:cover;border-radius:12px;margin-bottom:1rem}
+
+/* Grid & Cards Home */
+.activities-grid-home{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+  gap:1.5rem;margin-top:1.5rem;
+}
+.activity-card-home{
+  display:flex;flex-direction:column;text-align:center;background:var(--tropical-blue-200);
+  border-radius:15px;padding:30px;box-shadow:var(--box-shadow);transition:transform .3s,box-shadow .3s;
+  overflow:hidden;text-decoration:none;outline:none;
+}
+.activity-card-home:hover{transform:translateY(-6px);box-shadow:0 10px 30px rgba(0,0,0,.12)}
+.activity-card-home:focus-visible{outline:2px solid var(--link-water-400);outline-offset:3px}
+.activity-card-home img{width:100%;height:160px;object-fit:cover;border-radius:8px;margin-bottom:1rem}
+.activity-card-home h3{margin:.5rem 0;font-size:1.2rem;color:var(--tropical-blue-950)}
+.activity-card-home p{flex-grow:1;font-size:.95rem;color:var(--tropical-blue-950)}
+.activity-card-home .btn{margin-top:1rem}
+a.activity-card-home,a.activity-card-home:link,a.activity-card-home:visited{color:inherit;text-decoration:none}

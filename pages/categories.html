@@ -12,6 +12,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Lora&family=Roboto+Mono:wght@400;700&display=swap"
     rel="stylesheet">
   <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/pages/categories.css">
   <script type="module" src="../js/app.js"></script>
   <script type="module" src="../js/categories.mjs"></script>
 </head>
@@ -22,27 +23,27 @@
 
   <main id="main">
     <!-- Section 1: Quiz by Category -->
-    <section class="content-section reveal" aria-labelledby="quiz-heading">
+    <section id="quiz-sec" class="content-section reveal" aria-labelledby="quiz-heading">
       <h2 id="quiz-heading">Quiz by Category</h2>
 
       <!-- Dynamic container (JS can render here).
-       Dejo también tus 3 tarjetas base como fallback inicial. -->
-      <div id="categories-list" class="activities-grid">
-        <a href="quiz.html?category=17" class="activity-card">
+      Dejo también tus 3 tarjetas base como fallback inicial. -->
+      <div id="categories-list" class="activities-grid-categ">
+        <a href="pages/quiz.html?category=17" class="activity-card-categ">
           <img src="../public/images/home/science.jpg" alt="Science for kids">
           <h3>Incredible Science</h3>
           <p>Simple and safe experiments to understand the world.</p>
           <span class="btn">Start Quiz</span>
         </a>
 
-        <a href="quiz.html?category=18" class="activity-card">
+        <a href="pages/quiz.html?category=18" class="activity-card-categ">
           <img src="../public/images/home/computers.jpg" alt="Computers for kids">
           <h3>Computer Wizards</h3>
           <p>Fun challenges about technology.</p>
           <span class="btn">Start Quiz</span>
         </a>
 
-        <a href="quiz.html?category=19" class="activity-card">
+        <a href="pages/quiz.html?category=19" class="activity-card-categ">
           <img src="../public/images/home/math.jpg" alt="Math for kids">
           <h3>Magical Math</h3>
           <p>Games to become a number wizard.</p>
@@ -52,7 +53,7 @@
 
       <!-- Optional template (si luego prefieres templating por JS) -->
       <template id="tpl-category-card">
-        <a class="activity-card" href="#">
+        <a class="activity-card-categ" href="#">
           <img src="" alt="">
           <h3 class="category-name"></h3>
           <p class="category-desc"></p>
@@ -71,15 +72,15 @@
       <p>Discover real animals and plants from scientific collections. Guess and collect!</p>
 
       <!-- Dynamic container (JS puede pintar). Incluyo fallback con 2 tarjetas -->
-      <div id="idigbio-list" class="activities-grid">
-        <a href="nature-lab.html" class="activity-card">
+      <div id="idigbio-list" class="activities-grid-categ">
+        <a href="pages/nature-lab.html" class="activity-card-categ">
           <img src="../public/images/home/nature-guess.jpg" alt="Guess the animal">
           <h3>Guess the Animal</h3>
           <p>Look at the image and choose the correct answer.</p>
           <span class="btn">Play</span>
         </a>
 
-        <a href="nature-cards.html" class="activity-card">
+        <a href="pages/nature-cards.html" class="activity-card-categ">
           <img src="../public/images/home/nature-cards.jpg" alt="Species collectible cards">
           <h3>Creature Cards</h3>
           <p>Collect cards with a photo, name, and discovery location.</p>
@@ -88,7 +89,7 @@
       </div>
 
       <template id="tpl-idigbio-card">
-        <a class="activity-card" href="#">
+        <a class="activity-card-categ" href="#">
           <img src="" alt="">
           <h3></h3>
           <p></p>
@@ -106,15 +107,15 @@
       <p>Short, friendly summaries of interesting topics. Perfect for starting to learn.</p>
 
       <!-- Dynamic container (JS puede pintar). Incluyo fallback con 2 tarjetas -->
-      <div id="wiki-list" class="activities-grid">
-        <a href="wiki-explorer.html?topic=dinosaur" class="activity-card">
+      <div id="wiki-list" class="activities-grid-categ">
+        <a href="pages/wiki-explorer.html?topic=dinosaur" class="activity-card-categ">
           <img src="../public/images/home/wiki-dino.jpg" alt="Dinosaurs">
           <h3>Dinosaurs</h3>
           <p>Read a summary with an image and keep learning.</p>
           <span class="btn">View</span>
         </a>
 
-        <a href="wiki-explorer.html?topic=computer" class="activity-card">
+        <a href="pages/wiki-explorer.html?topic=computer" class="activity-card-categ">
           <img src="../public/images/home/wiki-computers.jpg" alt="Computers">
           <h3>Computers</h3>
           <p>Discover how they work and their history.</p>
@@ -123,7 +124,7 @@
       </div>
 
       <template id="tpl-wiki-card">
-        <a class="activity-card" href="#">
+        <a class="activity-card-categ" href="#">
           <img src="" alt="">
           <h3></h3>
           <p></p>
