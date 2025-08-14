@@ -1,6 +1,6 @@
 /* ===== Hero Section ===== */
 .hero {
-  background: url("/src/public/images/hero-bg.jpg") center/cover no-repeat;
+  background: url("/public/images/hero-bg.jpg") center/cover no-repeat;
   color: #fff; text-align: center; padding: 4rem 1rem;
   display: flex; align-items: center; justify-content: center; min-height: 60vh; position: relative;
 }
