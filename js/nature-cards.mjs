@@ -1,8 +1,13 @@
-// js/nature-cards.mjs
+// File: /js/nature-cards.mjs
+// --- Nature Cards Page Logic ---
 import { fetchIdigbioMedia } from "./api.mjs";
 
 const $ = (sel, ctx = document) => ctx.querySelector(sel);
 
+/**
+ * cardTemplate
+ * @description Generates the HTML string for a single nature card.
+ */
 function cardTemplate(item) {
   const subtitle = [item.country, item.locality].filter(Boolean).join(" • ");
   return `
@@ -15,11 +20,14 @@ function cardTemplate(item) {
   `;
 }
 
+/**
+ * initNatureCards
+ * @description Main function to initialize the nature cards page by fetching and rendering data from the iDigBio API.
+ */
 export async function initNatureCards() {
   const wrap = $("#cards-container");
-  if (!wrap) {return;}
+  if (!wrap) { return; }
 
-  // Puedes variar el taxón para diversidad (Aves, Reptilia, Amphibia, Insecta, Plantae...)
   const items = await fetchIdigbioMedia({ taxon: "Aves", limit: 12 });
   if (!items.length) {
     wrap.innerHTML = "<p>We couldn't load cards right now. Please try again later.</p>";
