@@ -1,0 +1,49 @@
+/* ===== Dashboard Activity Breakdown ===== */
+.activity-breakdown h2 {
+  color: var(--tropical-blue-700);
+  margin-top: 2.5rem;
+  margin-bottom: 1rem;
+  font-size: 1.5rem;
+}
+#breakdown-container {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+  margin-bottom: 2.5rem;
+}
+.breakdown-card {
+  background-color: var(--white);
+  border: 1px solid var(--link-water-200);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  box-shadow: var(--shadow-sm);
+}
+.breakdown-card h3 {
+  margin-top: 0;
+  margin-bottom: 1rem;
+  color: var(--tropical-blue-800);
+  border-bottom: 1px solid var(--link-water-100);
+  padding-bottom: 0.75rem;
+}
+.breakdown-card ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.breakdown-card li {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--link-water-50);
+}
+.breakdown-card li:last-child {
+  border-bottom: none;
+}
+.breakdown-card .category-name {
+  font-weight: bold;
+  color: var(--tropical-blue-950);
+}
+.breakdown-card .category-score {
+  font-family: var(--font-mono);
+  color: var(--tropical-blue-700);
+}

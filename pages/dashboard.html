@@ -3,50 +3,51 @@
 
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>WonderWorld Learning — Dashboard</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Dashboard | WonderWorld Learning</title>
 
-  <!-- Estilos base -->
-  <link rel="stylesheet" href="../css/base.css" />
-
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/pages/dashboard.css">
 </head>
 
 <body>
-  <!-- Header (insertado por partial) -->
+  <a class="skip-link" href="#main">Skip to main content</a>
   <header id="main-header"></header>
 
-  <main class="container dashboard">
-    <h1>Dashboard</h1>
+  <main id="main" role="main">
+    <div class="content-section">
+      <h1>Your Progress Dashboard</h1>
 
-    <!-- Resumen de métricas -->
-    <section class="dashboard-grid">
-      <article class="dashboard-card">
-        <h3>Total Quizzes</h3>
-        <p id="total-quizzes">0</p>
-      </article>
+      <div id="no-history-msg" style="display: none;">
+        <h2>No activity yet!</h2>
+        <p>Complete a quiz to see your progress here.</p>
+        <a href="../pages/categories.html" class="btn" style="margin-top: 1rem;">Start a Quiz</a>
+      </div>
 
-      <article class="dashboard-card">
-        <h3>Average Score</h3>
-        <p id="average-score">0%</p>
-      </article>
+      <section class="dashboard-grid">
+        <div class="metric-card">
+          <h3>Total Activities</h3>
+          <p class="value" id="total-quizzes">—</p>
+        </div>
+        <div class="metric-card">
+          <h3>Overall Average</h3>
+          <p class="value" id="average-score">—</p>
+        </div>
+        <div class="metric-card">
+          <h3>Best Category</h3>
+          <p class="value" id="best-category">—</p>
+        </div>
+      </section>
 
-      <article class="dashboard-card">
-        <h3>Best Category</h3>
-        <p id="best-category">—</p>
-      </article>
-    </section>
-
-    <!-- Historial de quizzes -->
-    <section class="dashboard-card">
-      <h3>Quiz History</h3>
-
-      <!-- Mensaje cuando no hay historial -->
-      <p id="no-history-msg" style="display:none;">
-        No quiz history yet. Play a quiz to see your progress here.
-      </p>
-
-      <div class="table-wrapper">
-        <table class="table">
+      <section class="activity-breakdown">
+        <h2>Activity Breakdown</h2>
+        <div id="breakdown-container">
+          </div>
+      </section>
+      
+      <section class="table-wrapper">
+        <h2>Recent History</h2>
+        <table class="history-table">
           <thead>
             <tr>
               <th>Category</th>
@@ -56,28 +57,14 @@
           </thead>
           <tbody id="history-table-body"></tbody>
         </table>
-      </div>
-    </section>
-
-    <!-- Gráfico por categoría -->
-    <section class="dashboard-card">
-      <h3>Performance by Category</h3>
-      <canvas id="category-chart" width="400" height="240">
-        Your browser does not support the canvas element.
-      </canvas>
-    </section>
+      </section>
+    </div>
   </main>
 
-  <!-- Footer (insertado por partial) -->
   <footer id="main-footer"></footer>
 
-  <!-- Importante: Chart.js ANTES de app.js -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-  <!-- App principal (type=module) -->
   <script type="module" src="../js/app.js"></script>
-  <script type="module" src="../js/dashboard.js"></script>
-
+  <script type="module"src="../js/dashboard.mjs"></script>
 </body>
 
 </html>

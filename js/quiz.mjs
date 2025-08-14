@@ -4,7 +4,7 @@
    - Timer por pregunta, score, feedback y resumen final
 */
 import { makeCountdown, shuffle } from "./gametools.mjs";
-import { safeInit } from "./utils.mjs";
+import { safeInit, addQuizResult } from "./utils.mjs";
 
 // ---------- Helpers ----------
 const $ = (sel, parent = document) => parent.querySelector(sel);
@@ -141,17 +141,30 @@ function showSummary() {
   resetState();
   const total = questions.length;
   const percent = Math.round((score / total) * 100);
+  
+  // Guardar resultado en Local Storage (esta parte se mantiene)
+  const categoryName = new URLSearchParams(location.search).get("name") || "Quiz";
+  const resultData = {
+    type: "Category Quiz",
+    category: decodeURIComponent(categoryName),
+    score: score,
+    total: total,
+    date: new Date().toISOString()
+  };
+  addQuizResult(resultData);
+  
   questionTextEl.textContent = "Great job! Here are your results:";
   const summary = document.createElement("div");
+
+  // MODIFICADO: Se ha eliminado el botón "View Dashboard"
   summary.innerHTML = `
-    <p><strong>Correct:</strong> ${score}/${total} (${percent}%)</p>
-    <p>Want to try another category?</p>
+    <div class="fact-card">
+      <p><strong>Final Score:</strong> ${score}/${total} (${percent}%)</p>
+    </div>
+    <div style="margin-top: 1.5rem; text-align: center;">
+      <a href="${resolve("pages/categories.html")}" class="btn">Try Another Category</a>
+    </div>
   `;
-  const link = document.createElement("a");
-  link.className = "btn";
-  link.href = resolve("pages/categories.html");
-  link.textContent = "Go to Categories";
-  summary.appendChild(link);
   feedbackEl.appendChild(summary);
 }
 

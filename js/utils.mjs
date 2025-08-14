@@ -4,30 +4,29 @@
 
 /**
  * Calcula la ruta base del sitio de forma inteligente.
- * @returns {string} La ruta base a usar (p. ej., "/", "/repo/", etc.).
+ * @returns {string} La ruta base a usar (p. ej., "/src/", "/repo/", "/").
  */
 export function siteBase() {
   const host = location.hostname;
 
-  // 1. Prioridad máxima: si estamos en desarrollo local, la base es siempre "/"
+  // 1. Lógica para desarrollo local que funcionaba para tus imágenes y archivos.
   if (host === "127.0.0.1" || host === "localhost") {
     return "/src/";
   }
   
-  // 2. Si no es local, revisamos si hay un `data-repo` para forzar la base
-  // (útil para GitHub Pages con dominios personalizados).
+  // 2. Si no es local, revisa si hay un `data-repo` para forzar la base.
   const attr = document.documentElement.getAttribute("data-repo");
   if (attr) {
     return `/${attr.replace(/^\/|\/$/g, "")}/`;
   }
 
-  // 3. Detección automática para GitHub Pages (usuario.github.io/<repo>/)
+  // 3. Detección automática para GitHub Pages.
   if (host.endsWith("github.io")) {
     const segs = location.pathname.split("/").filter(Boolean);
     return segs.length ? `/${segs[0]}/` : "/";
   }
   
-  // 4. Para cualquier otro caso (dominio propio en producción), la base es "/"
+  // 4. Para cualquier otro caso (dominio propio en producción), la base es "/".
   return "/";
 }
 
@@ -37,12 +36,10 @@ export function siteBase() {
  */
 export function resolveAbs(path) {
   const p = String(path || "");
-  // Si ya es una URL completa (http/https), no la tocamos.
   if (/^https?:\/\//i.test(p)) {
     return p;
   }
   const base = siteBase();
-  // Quita la barra inicial si la tiene para evitar dobles barras "//"
   const normalized = p.startsWith("/") ? p.slice(1) : p;
   return base + normalized;
 }
@@ -58,8 +55,24 @@ export function getLocalStorage(key) { return JSON.parse(localStorage.getItem(ke
 export function setLocalStorage(key, data) { localStorage.setItem(key, JSON.stringify(data)); }
 export function getParam(param) { return new URLSearchParams(location.search).get(param); }
 
+/**
+ * Añade el resultado de un quiz al historial en localStorage de forma segura.
+ * @param {object} result - El objeto con los datos del quiz finalizado.
+ */
+export function addQuizResult(result) {
+  const history = getLocalStorage("quizHistory") || [];
+  history.unshift(result);
+  setLocalStorage("quizHistory", history);
+}
+
 /* --------- Helpers para renderizar plantillas HTML --------- */
-export function renderListWithTemplate(template, parent, list, position = "afterbegin", clear = false) {
+export function renderListWithTemplate(
+  template,
+  parent,
+  list,
+  position = "afterbegin",
+  clear = false
+) {
   if (!Array.isArray(list)) { return; }
   if (clear) { parent.innerHTML = ""; }
   parent.insertAdjacentHTML(position, list.map(template).join(""));
@@ -88,13 +101,11 @@ export async function loadHeaderFooter() {
   renderWithTemplate(headerTemplate, headerEl);
   renderWithTemplate(footerTemplate, footerEl);
 
-  // Ajusta la ruta del logo
   const logo = headerEl.querySelector("[data-logo]");
   if (logo) {
     logo.src = resolveAbs("public/images/logo-modified.png");
   }
 
-  // Reescribe los enlaces con `data-route` para que usen la ruta base correcta
   const rewriteRoutes = (root) => {
     root.querySelectorAll("a[data-route]").forEach((a) => {
       const route = a.getAttribute("data-route") || "";
@@ -107,7 +118,6 @@ export async function loadHeaderFooter() {
     rewriteRoutes(mobileNav);
   }
 
-  // Marca el enlace de navegación actual con `aria-current="page"`
   const currentPage = (location.pathname.split("/").pop() || "index.html").toLowerCase();
   headerEl.querySelectorAll("nav a[href]").forEach((a) => {
     const linkPage = (a.href.split("/").pop() || "index.html").toLowerCase();
