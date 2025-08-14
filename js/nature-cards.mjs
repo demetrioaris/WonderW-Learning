@@ -1,4 +1,4 @@
-// js/nature-cards.mjs
+
 import { fetchIdigbioMedia } from "./api.mjs";
 
 const $ = (sel, ctx = document) => ctx.querySelector(sel);
@@ -19,7 +19,6 @@ export async function initNatureCards() {
   const wrap = $("#cards-container");
   if (!wrap) {return;}
 
-  // Puedes variar el taxón para diversidad (Aves, Reptilia, Amphibia, Insecta, Plantae...)
   const items = await fetchIdigbioMedia({ taxon: "Aves", limit: 12 });
   if (!items.length) {
     wrap.innerHTML = "<p>We couldn't load cards right now. Please try again later.</p>";

@@ -1,14 +1,9 @@
-// js/nature-lab.mjs
-// MODIFICADO: Juego de 5 rondas con API de Facts reintegrada y guardado en localStorage.
-
 import { $, $$, resolveAbs, safeInit, addQuizResult } from "./utils.mjs";
 import { makeCountdown, shuffle, sampleDistinct } from "./gametools.mjs";
 
-// ---------- Config ----------
 const SECS_PER_ROUND = 20;
 const TOTAL_ROUNDS = 5;
 
-// RE-AÑADIDO: Lógica para el endpoint del API de Facts
 const FACTS_ENDPOINT = (() => {
   const meta = document.querySelector("meta[name=\"facts-endpoint\"]")?.content?.trim();
   if (meta === "none") {return null;}
@@ -16,10 +11,9 @@ const FACTS_ENDPOINT = (() => {
   const host = location.hostname;
   const isCFHosted = host.endsWith(".pages.dev") || host.endsWith(".workers.dev") || (!["localhost", "127.0.0.1"].includes(host) && location.protocol.startsWith("http"));
   if (isCFHosted) {return "/api/animals";}
-  return null; // Facts desactivados en dev simple sin meta
+  return null; 
 })();
 
-// ---------- Carga de Datos y API ----------
 async function loadAnimalsPool() {
   const url = resolveAbs("public/data/animals.json");
   const res = await fetch(url, { cache: "no-store" });
@@ -31,7 +25,6 @@ async function loadAnimalsPool() {
     .map(x => ({ title: x.title, api: x.api || x.title, img: resolveAbs(x.img) }));
 }
 
-// RE-AÑADIDO: Función para buscar los facts
 async function fetchFactsViaProxy(commonName) {
   if (!FACTS_ENDPOINT) {return null;}
   const res = await fetch(`${FACTS_ENDPOINT}?name=${encodeURIComponent(commonName)}`);
@@ -40,7 +33,6 @@ async function fetchFactsViaProxy(commonName) {
   return Array.isArray(data) && data.length ? data[0] : null;
 }
 
-// RE-AÑADIDO: Función para dar formato a la tarjeta de facts
 function formatFacts(animal) {
   if (!animal) {return "";}
   const tx = animal.taxonomy || {};
@@ -55,9 +47,8 @@ function formatFacts(animal) {
   return `<h3>About this animal</h3><ul class="fact-list">${lines.join("")}</ul>`;
 }
 
-// ---------- Estado del Juego ----------
 let containerRef, POOL, countdown, questions, currentRound, score;
-resetGameState(); // Inicializa el estado
+resetGameState();
 
 function resetGameState() {
   questions = [];
@@ -65,7 +56,6 @@ function resetGameState() {
   score = 0;
 }
 
-// ---------- Lógica de Juego y Flujo ----------
 function startQuiz() {
   resetGameState();
   if (POOL.length < TOTAL_ROUNDS * 2) {
@@ -167,7 +157,6 @@ function showSummary() {
   $("#play-again-btn", containerRef).addEventListener("click", startQuiz, { once: true });
 }
 
-// ---------- Renderizado de Ronda ----------
 function renderRound() {
   const { specimen, options } = questions[currentRound];
   containerRef.innerHTML = `
@@ -197,7 +186,6 @@ function renderRound() {
   }).start();
 }
 
-// ---------- Inicialización ----------
 async function initNatureLab() {
   containerRef = $("#game-area");
   if (!containerRef) {return;}

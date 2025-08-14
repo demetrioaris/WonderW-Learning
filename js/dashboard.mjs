@@ -1,10 +1,5 @@
-// Archivo: src/js/dashboard.mjs (versión sin gráfico)
-
 import { getLocalStorage, safeInit } from "./utils.mjs";
 
-/**
- * Procesa el historial para calcular estadísticas agregadas.
- */
 function calculateStats(history) {
   const totalQuizzes = history.length;
   
@@ -31,18 +26,12 @@ function calculateStats(history) {
   return { totalQuizzes, averageScore, bestCategoryName: bestCategory.name, categoryData };
 }
 
-/**
- * Muestra las métricas principales en las tarjetas del dashboard.
- */
 function displayMetrics(stats) {
   document.getElementById("total-quizzes").textContent = stats.totalQuizzes;
   document.getElementById("average-score").textContent = `${stats.averageScore}%`;
   document.getElementById("best-category").textContent = stats.bestCategoryName;
 }
 
-/**
- * Rellena la tabla con el historial de quizzes.
- */
 function displayHistoryTable(history) {
   const tableBody = document.getElementById("history-table-body");
   tableBody.innerHTML = history.map(item => {
@@ -61,14 +50,13 @@ function displayHistoryTable(history) {
 }
 
 /**
- * NUEVO: Crea y muestra el desglose de resultados por tipo de actividad.
- * @param {Array} history - El array de resultados del quiz.
+ * NEW: Create and display results breakdowns by activity type.
+ * @param {Array} history - The array of quiz results.
  */
 function displayActivityBreakdown(history) {
   const container = document.getElementById("breakdown-container");
   if (!container) {return;}
 
-  // 1. Agrupar resultados por tipo de actividad (ej. "Nature Lab", "Category Quiz")
   const activities = history.reduce((acc, item) => {
     if (!acc[item.type]) {
       acc[item.type] = [];
@@ -78,11 +66,9 @@ function displayActivityBreakdown(history) {
   }, {});
 
   let html = "";
-  // 2. Crear una tarjeta para cada tipo de actividad
   for (const type in activities) {
     const activityHistory = activities[type];
         
-    // Calcular estadísticas por categoría dentro de esta actividad
     const categoryStats = activityHistory.reduce((acc, item) => {
       if (!acc[item.category]) {
         acc[item.category] = { score: 0, total: 0 };
@@ -92,7 +78,6 @@ function displayActivityBreakdown(history) {
       return acc;
     }, {});
 
-    // 3. Generar el HTML para la lista de categorías
     const categoryListHtml = Object.entries(categoryStats).map(([name, data]) => {
       const percentage = Math.round((data.score / data.total) * 100);
       return `
@@ -103,7 +88,6 @@ function displayActivityBreakdown(history) {
             `;
     }).join("");
         
-    // 4. Construir la tarjeta completa
     html += `
             <div class="breakdown-card">
                 <h3>${type}</h3>
@@ -117,9 +101,6 @@ function displayActivityBreakdown(history) {
   container.innerHTML = html;
 }
 
-/**
- * Función principal que inicializa todo el dashboard.
- */
 function initDashboard() {
   const history = getLocalStorage("quizHistory") || [];
   const noHistoryMsg = document.getElementById("no-history-msg");
@@ -134,8 +115,7 @@ function initDashboard() {
   
   displayMetrics(stats);
   displayHistoryTable(history);
-  displayActivityBreakdown(history); // Llamamos a la nueva función
+  displayActivityBreakdown(history); 
 }
 
-// Inicializa el dashboard de forma segura.
 safeInit(initDashboard);

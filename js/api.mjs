@@ -1,5 +1,3 @@
-// js/api.mjs
-
 /**
  * Fetches 10 quiz questions from the Open Trivia API for a specific category.
  * @param {string | number} categoryId - The ID of the category to fetch. Defaults to 9 (General Knowledge).
@@ -19,8 +17,8 @@ export async function fetchQuizData(categoryId = 9) { // Default to General Know
 }
 
 /**
- * Busca un artículo en la API de Wikipedia y lo muestra en #wiki-content.
- * @param {string} topic - El tema a buscar.
+ * Looks up an article in the Wikipedia API and returns it in #wiki-content.
+ * @param {string} topic - The topic to search for.
  */
 export function fetchAndDisplayWikipediaArticle(topic) {
   const contentContainer = document.getElementById("wiki-content");
@@ -52,7 +50,7 @@ export function fetchAndDisplayWikipediaArticle(topic) {
 }
 
 /**
- * Wikipedia REST Summary (datos normalizados para UI propia).
+ * Wikipedia REST Summary (normalized data for own UI).
  * @param {string} topic
  * @returns {Promise<{title:string, extract:string, image?:string, url:string}>}
  */
@@ -70,14 +68,13 @@ export async function getWikipediaSummary(topic) {
   };
 }
 
-// Animals API (API Ninjas): https://api.api-ninjas.com/v1/animals
-// Requiere header X-Api-Key y parámetro ?name=  (devuelve hasta 10 coincidencias)
+// Animals API (Ninjas API): https://api.api-ninjas.com/v1/animals
+// Requires X-Api-Key header and ?name= parameter (returns up to 10 matches)
 export async function fetchNinjaAnimalByName(name, apiKey) {
   if (!apiKey) {throw new Error("Missing API Ninjas key");}
   const url = `https://api.api-ninjas.com/v1/animals?name=${encodeURIComponent(name)}`;
   const res = await fetch(url, { headers: { "X-Api-Key": apiKey } });
   if (!res.ok) {throw new Error(`API Ninjas HTTP ${res.status}`);}
   const data = await res.json();
-  // Toma el primer match (suele ser el más relevante)
   return Array.isArray(data) && data.length ? data[0] : null;
 }

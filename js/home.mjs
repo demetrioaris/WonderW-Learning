@@ -1,7 +1,3 @@
-// home.mjs — Home page behaviors: reveal animation + features rotator
-// Funcionará tanto si lo importas desde app.js como si lo cargas directo con <script type="module">.
-
-// ---------- Utils ----------
 const $ = (sel, scope = document) => scope.querySelector(sel);
 const $$ = (sel, scope = document) => [...scope.querySelectorAll(sel)];
 
@@ -11,14 +7,13 @@ async function loadJSON(path) {
   return res.json();
 }
 
-// ---------- Reveal (slide-up) ----------
 function initRevealObserver() {
   const io = new IntersectionObserver(
     (entries, obs) => {
       for (const entry of entries) {
         if (entry.isIntersecting) {
           entry.target.classList.add("is-visible");
-          obs.unobserve(entry.target); // animar una sola vez
+          obs.unobserve(entry.target); 
         }
       }
     },
@@ -44,8 +39,7 @@ export function initHomeAnimations() {
   initRevealObserver();
 }
 
-// ---------- Features Rotator ----------
-const INTERVAL_MS = 10000; // 10s por requisito
+const INTERVAL_MS = 10000;
 
 function createDots(container, count) {
   if (!container) {return;}
@@ -79,7 +73,7 @@ function renderFeature(root, item) {
     if (item.image) {
       imageEl.src = item.image;
       imageEl.alt = item.title || "";
-      imageEl.style.display = ""; // por si antes estaba oculto
+      imageEl.style.display = ""; 
     } else {
       imageEl.removeAttribute("src");
       imageEl.alt = "";
@@ -113,7 +107,6 @@ export async function initFeatureRotator() {
   try {
     items = await loadJSON(src);
   } catch (e) {
-    // Silencioso en UI; evita romper Home si el JSON falla
     console.error(e);
     return;
   }
@@ -138,7 +131,6 @@ export async function initFeatureRotator() {
     });
   });
 
-  // Rotación automática
   let timer = setInterval(() => {
     const nextIdx = (index + 1) % items.length;
     fadeSwap(card, () => {
@@ -148,7 +140,6 @@ export async function initFeatureRotator() {
     });
   }, INTERVAL_MS);
 
-  // Pausar al interactuar (UX)
   section.addEventListener("mouseenter", () => clearInterval(timer));
   section.addEventListener("mouseleave", () => {
     timer = setInterval(() => {
@@ -161,7 +152,6 @@ export async function initFeatureRotator() {
     }, INTERVAL_MS);
   });
 
-  // Pausar cuando la pestaña no está visible
   document.addEventListener("visibilitychange", () => {
     if (document.hidden) {
       clearInterval(timer);
@@ -178,17 +168,15 @@ export async function initFeatureRotator() {
   });
 }
 
-// ---------- Init combinado ----------
 let __home_inited = false;
 
 export default async function initHome() {
-  if (__home_inited) {return;} // evita doble init si se importa en otro lado
+  if (__home_inited) {return;} 
   __home_inited = true;
   initHomeAnimations();
   await initFeatureRotator();
 }
 
-// Auto-init siempre que este módulo se cargue en la página
 if (document.readyState === "loading") {
   document.addEventListener("DOMContentLoaded", () => initHome());
 } else {

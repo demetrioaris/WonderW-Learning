@@ -1,11 +1,8 @@
-// js/gametools.mjs
-// Utilidades comunes para juegos: timer y selección aleatoria
-
-/** Cuenta regresiva simple reutilizable
+/** Simple reusable countdown
  *  @param {Object} cfg
- *  @param {number} cfg.seconds - segundos iniciales
- *  @param {(s:number)=>void} [cfg.onTick] - callback cada segundo
- *  @param {()=>void} [cfg.onDone] - callback al llegar a 0
+ *  @param {number} cfg.seconds - initial seconds
+ *  @param {(s:number)=>void} [cfg.onTick] - callback every second
+ *  @param {()=>void} [cfg.onDone] - callback on reaching 0
  *  @returns {{start:Function, stop:Function, remaining:number, running:boolean}}
  */
 export function makeCountdown({ seconds, onTick, onDone }) {
@@ -40,7 +37,6 @@ export function makeCountdown({ seconds, onTick, onDone }) {
   return api;
 }
 
-/** Baraja un array (Fisher–Yates) sin mutarlo */
 export function shuffle(arr) {
   const a = Array.isArray(arr) ? arr.slice() : [];
   for (let i = a.length - 1; i > 0; i--) {
@@ -50,7 +46,6 @@ export function shuffle(arr) {
   return a;
 }
 
-/** Toma n elementos distintos del array (barajado) */
 export function sampleDistinct(arr, n) {
   return shuffle(arr).slice(0, Math.max(0, n|0));
 }

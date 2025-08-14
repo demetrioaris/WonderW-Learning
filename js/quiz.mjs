@@ -1,15 +1,8 @@
-/* Quiz module: OpenTDB multiple choice
-   - Lee ?category=<id>&name=<display>
-   - Carga 10 preguntas de Open Trivia DB
-   - Timer por pregunta, score, feedback y resumen final
-*/
 import { makeCountdown, shuffle } from "./gametools.mjs";
 import { safeInit, addQuizResult } from "./utils.mjs";
 
-// ---------- Helpers ----------
 const $ = (sel, parent = document) => parent.querySelector(sel);
 
-// --- Resolución robusta de rutas (local y GitHub Pages) ---
 function siteBase() {
   const dataRepo = document.documentElement.getAttribute("data-repo");
   if (dataRepo) {return `/${dataRepo.replace(/^\/|\/$/g, "")}/`;}
@@ -20,10 +13,8 @@ function siteBase() {
   return "/";
 }
 const resolve = (path) => new URL(path, `${location.origin}${siteBase()}`).toString();
-
 const decode = (str) => { const txt = document.createElement("textarea"); txt.innerHTML = str; return txt.value; };
 
-// ---------- DOM refs ----------
 const categoryNameEl = $("#category-name");
 const questionTextEl = $("#question-text");
 const optionsEl = $("#options");
@@ -34,14 +25,12 @@ const qIndexEl = $("#question-index");
 const qTotalEl = $("#question-total");
 const feedbackEl = $("#feedback");
 
-// ---------- State ----------
 let questions = [];
 let current = 0;
 let score = 0;
-let countdown = null; // timer compartido
+let countdown = null; 
 const SECS_PER_Q = 30;
 
-// ---------- API ----------
 async function fetchQuizData(categoryId) {
   const url = `https://opentdb.com/api.php?amount=10&category=${encodeURIComponent(categoryId)}&type=multiple&encode=url3986`;
   const res = await fetch(url);
@@ -57,7 +46,6 @@ async function fetchQuizData(categoryId) {
   });
 }
 
-// ---------- UI ----------
 function resetState() {
   if (countdown) { countdown.stop(); countdown = null; }
   optionsEl.innerHTML = "";
@@ -84,7 +72,6 @@ function renderQuestion() {
     optionsEl.appendChild(btn);
   });
 
-  // Inicia cuenta regresiva compartida
   countdown = makeCountdown({
     seconds: SECS_PER_Q,
     onTick: (s) => { if (timerEl) {timerEl.textContent = String(s);} },
@@ -142,7 +129,6 @@ function showSummary() {
   const total = questions.length;
   const percent = Math.round((score / total) * 100);
   
-  // Guardar resultado en Local Storage (esta parte se mantiene)
   const categoryName = new URLSearchParams(location.search).get("name") || "Quiz";
   const resultData = {
     type: "Category Quiz",
@@ -156,7 +142,6 @@ function showSummary() {
   questionTextEl.textContent = "Great job! Here are your results:";
   const summary = document.createElement("div");
 
-  // MODIFICADO: Se ha eliminado el botón "View Dashboard"
   summary.innerHTML = `
     <div class="fact-card">
       <p><strong>Final Score:</strong> ${score}/${total} (${percent}%)</p>
@@ -168,7 +153,6 @@ function showSummary() {
   feedbackEl.appendChild(summary);
 }
 
-// ---------- Init ----------
 async function initQuiz() {
   const params = new URLSearchParams(location.search);
   const categoryId = params.get("category");
@@ -205,7 +189,6 @@ async function initQuiz() {
   renderQuestion();
 }
 
-// ---- Auto-init (una sola vez) ----
 safeInit(initQuiz, () => {
   const el = document.getElementById("question-text");
   if (el) {el.textContent = "We couldn't load the quiz right now. Please try again.";}

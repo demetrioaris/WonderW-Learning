@@ -1,10 +1,4 @@
-// js/categories.mjs
-// Three-section renderer for the Categories page:
-// 1) Quiz by Category (OpenTDB)
-// 2) Species Safari (iDigBio)
-// 3) Explore with Wikipedia
 
-// --- QUIZ (OpenTDB) ---
 const SUBJECTS = [
   { id: 17, name: "Science", desc: "10-question quiz" },
   { id: 19, name: "Math", desc: "10-question quiz" },
@@ -14,7 +8,6 @@ const SUBJECTS = [
   { id: 9,  name: "General Knowledge", desc: "10-question quiz" }
 ];
 
-// --- IDIGBIO (cards estáticas que llevan a páginas de juego) ---
 const IDIGBIO_ITEMS = [
   {
     slug: "nature-lab",
@@ -30,7 +23,6 @@ const IDIGBIO_ITEMS = [
   }
 ];
 
-// --- WIKIPEDIA (temas sugeridos para explorar resúmenes) ---
 const WIKI_TOPICS = [
   {
     topic: "dinosaur",
@@ -47,9 +39,8 @@ const WIKI_TOPICS = [
 ];
 
 function getBase() {
-  // Detecta repo en GitHub Pages: usuario.github.io/<repo>/...
   const isGh = location.hostname.endsWith("github.io");
-  const parts = location.pathname.split("/").filter(Boolean); // ["<repo>", "pages", ...]
+  const parts = location.pathname.split("/").filter(Boolean); 
   const repo = isGh ? (parts[0] || "") : "";
   return repo ? `/${repo}/` : "/";
 }
@@ -57,7 +48,6 @@ function getBase() {
 const $  = (sel, p = document) => p.querySelector(sel);
 
 function buildQuizHref(base, id, name) {
-  // categories vive en /pages/, pero construimos absoluto relativo al repo para evitar 404.
   return `${base}pages/quiz.html?category=${encodeURIComponent(id)}&name=${encodeURIComponent(name)}`;
 }
 
@@ -91,7 +81,6 @@ function renderCardsList({ listEl, tplEl, items, buildHref, fields }) {
 
       listEl.appendChild(node);
     } else {
-      // Fallback sin template
       const a = document.createElement("a");
       a.className = "activity-card";
       a.href = href;
@@ -109,7 +98,6 @@ function renderCardsList({ listEl, tplEl, items, buildHref, fields }) {
 export function initCategories() {
   const BASE = getBase();
 
-  // --- Section 1: QUIZ ---
   const quizList = $("#categories-list");
   const quizTpl  = $("#tpl-category-card");
   const quizForm = $("#category-search-form");
@@ -117,13 +105,11 @@ export function initCategories() {
   const quizFields = (cat) => ({
     title: cat.name,
     desc:  cat.desc,
-    img:   `../public/images/home/${slugify(cat.name)}.jpg` // opcional si tienes imágenes por categoría
+    img:   `../public/images/home/${slugify(cat.name)}.jpg`
   });
   const quizHref = (cat) => buildQuizHref(BASE, cat.id, cat.name);
 
-  // Render inicial Quiz
   if (quizList) {
-    // Si no tienes imágenes por categoría, podemos render sin imagen:
     renderCardsList({
       listEl: quizList,
       tplEl:  quizTpl,
@@ -137,7 +123,6 @@ export function initCategories() {
     });
   }
 
-  // Buscador (solo filtra QUIZ)
   if (quizForm && quizList) {
     quizForm.addEventListener("submit", (e) => {
       e.preventDefault();
@@ -157,7 +142,6 @@ export function initCategories() {
     });
   }
 
-  // --- Section 2: IDIGBIO ---
   const idbList = $("#idigbio-list");
   const idbTpl  = $("#tpl-idigbio-card");
   if (idbList) {
@@ -170,7 +154,6 @@ export function initCategories() {
     });
   }
 
-  // --- Section 3: WIKIPEDIA ---
   const wikiList = $("#wiki-list");
   const wikiTpl  = $("#tpl-wiki-card");
   if (wikiList) {
@@ -183,7 +166,6 @@ export function initCategories() {
     });
   }
 
-  // Pequeña mejora UX: aplicar animación 'reveal' si existe (IntersectionObserver)
   const reveals = document.querySelectorAll(".reveal");
   if ("IntersectionObserver" in window) {
     const io = new IntersectionObserver((entries) => {
@@ -200,7 +182,6 @@ export function initCategories() {
   }
 }
 
-// Util para construir rutas de imagen por nombre (opcional)
 function slugify(str) {
   return String(str || "")
     .toLowerCase()

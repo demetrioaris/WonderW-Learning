@@ -8,7 +8,6 @@ export function initHeaderNav() {
 
   if (!header || !headerBar) {return;}
 
-  // --- Acordeón móvil (Learning Hub)
   const mobileGroup = mobilePanel?.querySelector(".mobile-group");
   const mobileAccordion = mobilePanel?.querySelector(".mobile-accordion");
   if (mobileGroup && mobileAccordion) {
@@ -18,7 +17,6 @@ export function initHeaderNav() {
     });
   }
 
-  // --- CSS var de altura del header
   const setHeaderHeightVar = () => {
     const h = header.getBoundingClientRect().height || 64;
     document.documentElement.style.setProperty("--header-h", `${h}px`);
@@ -27,7 +25,6 @@ export function initHeaderNav() {
   window.addEventListener("load", setHeaderHeightVar);
   window.addEventListener("resize", setHeaderHeightVar);
 
-  // --- Toggle móvil + icono hamburguesa (NUEVO)
   if (menuBtn && mobilePanel) {
     const closeMobile = () => {
       menuBtn.classList.remove("is-active");
@@ -37,26 +34,23 @@ export function initHeaderNav() {
     };
 
     menuBtn.addEventListener("click", () => {
-      const active = menuBtn.classList.toggle("is-active"); // animación icono
-      header.classList.toggle("nav-open", active); // muestra/oculta panel
+      const active = menuBtn.classList.toggle("is-active"); 
+      header.classList.toggle("nav-open", active);
       menuBtn.setAttribute("aria-expanded", String(active));
       mobilePanel.setAttribute("aria-hidden", String(!active));
     });
 
-    // Cerrar al hacer clic en cualquier link del panel móvil
     mobilePanel.addEventListener("click", (e) => {
       const link = e.target.closest("a");
       if (link) {closeMobile();}
     });
 
-    // Cerrar con Escape cuando el foco está en el panel móvil
     document.addEventListener("keydown", (e) => {
       if (e.key === "Escape" && header.classList.contains("nav-open")) {
         closeMobile();
       }
     });
 
-    // Reset al pasar a desktop (coincide con tu @media 901px)
     const mq = window.matchMedia("(min-width: 901px)");
     const handleMQ = (ev) => {
       if (ev.matches) {closeMobile();}
@@ -66,7 +60,6 @@ export function initHeaderNav() {
       : mq.addListener(handleMQ);
   }
 
-  // --- Dropdown desktop accesible
   if (dropdown && dropdownBtn) {
     const toggleDd = (open) => {
       dropdown.classList.toggle("open", open);
@@ -84,14 +77,12 @@ export function initHeaderNav() {
     });
   }
 
-  // --- <base> para GitHub Pages (opcional). Si deployas en Cloudflare con ruta raíz, no afecta.
   (function () {
     const isGh = location.hostname.endsWith("github.io");
-    const repo = "WonderW-Learning/"; // ajusta si cambia el nombre del repo
+    const repo = "WonderW-Learning/"; 
     if (isGh) {
       const base = document.createElement("base");
       base.href = `/${repo}`;
-      // Evita duplicar <base> si ya existe
       const existing = document.querySelector("head base");
       if (existing) {existing.replaceWith(base);}
       else {document.head.prepend(base);}
