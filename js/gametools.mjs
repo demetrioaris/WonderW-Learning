@@ -1,13 +1,17 @@
-// File: /js/gametools.mjs
-// --- Common Game Utilities ---
+// js/gametools.mjs
+// Utilidades comunes para juegos: timer y selección aleatoria
 
-/**
- * makeCountdown
- * @description Creates a reusable countdown timer with start/stop controls and callbacks.
+/** Cuenta regresiva simple reutilizable
+ *  @param {Object} cfg
+ *  @param {number} cfg.seconds - segundos iniciales
+ *  @param {(s:number)=>void} [cfg.onTick] - callback cada segundo
+ *  @param {()=>void} [cfg.onDone] - callback al llegar a 0
+ *  @returns {{start:Function, stop:Function, remaining:number, running:boolean}}
  */
 export function makeCountdown({ seconds, onTick, onDone }) {
   let remain = Math.max(0, Number(seconds) || 0);
   let id = null;
+
   const api = {
     start() {
       api.stop();
@@ -32,13 +36,11 @@ export function makeCountdown({ seconds, onTick, onDone }) {
     get remaining() { return remain; },
     get running() { return id !== null; }
   };
+
   return api;
 }
 
-/**
- * shuffle
- * @description Returns a new, shuffled version of an array using the Fisher-Yates algorithm.
- */
+/** Baraja un array (Fisher–Yates) sin mutarlo */
 export function shuffle(arr) {
   const a = Array.isArray(arr) ? arr.slice() : [];
   for (let i = a.length - 1; i > 0; i--) {
@@ -48,10 +50,7 @@ export function shuffle(arr) {
   return a;
 }
 
-/**
- * sampleDistinct
- * @description Returns 'n' distinct, random elements from an array.
- */
+/** Toma n elementos distintos del array (barajado) */
 export function sampleDistinct(arr, n) {
-  return shuffle(arr).slice(0, Math.max(0, n | 0));
+  return shuffle(arr).slice(0, Math.max(0, n|0));
 }
