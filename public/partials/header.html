@@ -1,42 +1,42 @@
 <div class="header-bar">
-  <a class="logo" href="index.html" aria-label="Home">
+  <a class="logo" data-route="index.html" aria-label="Home">
     <img data-logo alt="WonderWorld Learning Logo" width="48" height="48" loading="lazy">
     <h1><span>WonderW <strong>Learning</strong></span></h1>
   </a>
 
-  <!-- Botón hamburguesa NUEVO: 3 barras -->
+  <!-- Hamburger -->
   <button id="menu-toggle" class="menu-toggle" aria-expanded="false" aria-controls="mobile-nav"
     aria-label="Toggle Menu">
-    <span class="bar"></span>
-    <span class="bar"></span>
-    <span class="bar"></span>
+    <span class="bar"></span><span class="bar"></span><span class="bar"></span>
   </button>
 
+  <!-- Desktop -->
   <nav class="nav-desktop" aria-label="Primary">
     <ul>
-      <li><a class="nav-link" href="index.html">Home</a></li>
-      <li><a class="nav-link" href="pages/categories.html">Categories</a></li>
+      <li><a class="nav-link" data-route="index.html">Home</a></li>
+      <li><a class="nav-link" data-route="pages/categories.html">Categories</a></li>
       <li class="dropdown">
         <button class="dropdown-btn" aria-expanded="false" aria-haspopup="true">Learning Hub</button>
         <ul class="dropdown-menu" role="menu">
-          <!-- <li><a role="menuitem" href="pages/quiz.html">Quiz</a></li> -->
-          <li><a role="menuitem" href="pages/dashboard.html">Dashboard</a></li>
+          <!-- Puedes habilitar Quiz directo si quieres -->
+          <!-- <li><a role="menuitem" data-route="pages/quiz.html">Quiz</a></li> -->
+          <li><a role="menuitem" data-route="pages/dashboard.html">Dashboard</a></li>
         </ul>
       </li>
     </ul>
   </nav>
 </div>
 
-<!-- Panel móvil -->
+<!-- Mobile -->
 <nav id="mobile-nav" class="mobile-panel" aria-hidden="true" aria-label="Mobile">
   <ul>
-    <li><a href="index.html">Home</a></li>
-    <li><a href="pages/categories.html">Categories</a></li>
+    <li><a data-route="index.html">Home</a></li>
+    <li><a data-route="pages/categories.html">Categories</a></li>
     <li class="mobile-group">
       <button class="mobile-accordion" aria-expanded="false">Learning Hub</button>
       <ul>
-        <!-- <li><a href="pages/quiz.html">Quiz</a></li> -->
-        <li><a href="pages/dashboard.html">Dashboard</a></li>
+        <!-- <li><a data-route="pages/quiz.html">Quiz</a></li> -->
+        <li><a data-route="pages/dashboard.html">Dashboard</a></li>
       </ul>
     </li>
   </ul>

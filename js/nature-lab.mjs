@@ -35,27 +35,39 @@ const FACTS_ENDPOINT = (() => {
 
 // ---------- Carga del dataset (JSON) ----------
 async function loadAnimalsPool() {
-  // Probamos primero en public/data/ y luego en la raíz del repo
-  const candidates = ["/public/data/animals.json", "animals.json"];
+  // We will try the two most common paths for local development.
+  const candidates = [
+    "/public/data/animals.json",      // Works if server root is /src
+    "/src/public/data/animals.json"   // Works if server root is the project folder
+  ];
   let data = null;
 
-  for (const rel of candidates) {
-    const url = resolveAbs(rel);
-    const res = await fetch(url, { cache: "no-store" });
-    if (res.ok) {
-      data = await res.json();
-      break;
+  // This loop now fetches the absolute paths directly.
+  for (const url of candidates) {
+    try {
+      const res = await fetch(url, { cache: "no-store" });
+      if (res.ok) {
+        data = await res.json();
+        console.log(`Successfully loaded animals.json from: ${url}`);
+        break; // Stop looking once the file is found
+      }
+    } catch (e) {
+      // Ignore fetch errors (like network issues) and try the next candidate
+      console.warn(`Could not fetch from ${url}, trying next...`);
     }
   }
 
-  if (!Array.isArray(data)) {throw new Error("Animals JSON not found in expected paths");}
+  if (!Array.isArray(data)) {
+    throw new Error("Animals JSON not found in expected paths");
+  }
 
-  // Normaliza y vuelve absolutas las rutas de imagen (evita 404 desde /pages/)
+  // The rest of the function remains the same
+  // Normaliza y vuelve absolutas las rutas de imagen
   return data
     .filter(x => x && x.title && x.img)
     .map(x => ({
       title: x.title,
-      api: x.api || x.title,   // nombre para la API (puede diferir del mostrado)
+      api: x.api || x.title,
       img: resolveAbs(x.img)
     }));
 }

@@ -1,6 +1,6 @@
 /* Hero */
 .hero{
-  background:url("/public/images/hero-bg.jpg") center/cover no-repeat;
+  background:url("/src/public/images/hero-bg.jpg") center/cover no-repeat;
   color:#fff;text-align:center;padding:4rem 1rem;
   display:flex;align-items:center;justify-content:center;min-height:60vh;position:relative;
 }
@@ -68,3 +68,4 @@ a.activity-card-home,a.activity-card-home:link,a.activity-card-home:visited{colo
   transform: scale(1);
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
 }
+

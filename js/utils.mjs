@@ -1,100 +1,139 @@
-// js/utils.mjs
+/** * utils.mjs 
+ * Caja de herramientas con funciones de ayuda reutilizables para el proyecto.
+ */
 
-// ---------------------------
-// Parámetros de URL
-// ---------------------------
-export const getParam = (k) => new URLSearchParams(location.search).get(k) ?? "";
-
-// ---------------------------
-// Render helpers
-// ---------------------------
-export function renderListWithTemplate(tpl, parent, list, position = "afterbegin", clear = false) {
-  if (!Array.isArray(list)) {return;}
-  if (clear) {parent.innerHTML = "";}
-  parent.insertAdjacentHTML(position, list.map(tpl).join(""));
-}
-
-export function renderWithTemplate(html, el, data, cb) {
-  el.innerHTML = html;
-  if (cb) {cb(data);}
-}
-
-async function loadTemplate(path) {
-  const res = await fetch(path);
-  if (!res.ok) {throw new Error(`HTTP ${res.status} - ${path}`);}
-  return res.text();
-}
-
-export async function loadHeaderFooter() {
-  // Mantengo tu lógica de rutas relativas (funciona bien)
-  const inPages = location.pathname.includes("/pages/");
-  const BASE = inPages ? "../" : "./";
-
-  const [header, footer] = await Promise.all([
-    loadTemplate(`${BASE}public/partials/header.html`),
-    loadTemplate(`${BASE}public/partials/footer.html`)
-  ]);
-
-  const $header = document.querySelector("#main-header");
-  const $footer = document.querySelector("#main-footer");
-
-  renderWithTemplate(header, $header);
-  renderWithTemplate(footer, $footer);
-
-  const $logo = $header.querySelector("[data-logo]");
-  if ($logo) {$logo.src = `${BASE}public/images/logo-modified.png`;}
-
-  const current = location.pathname.split("/").pop() || "index.html";
-  $header.querySelectorAll("nav a[href]").forEach(a => {
-    const end = (a.getAttribute("href") || "").split("/").pop();
-    a.toggleAttribute("aria-current", end === current);
-  });
-}
-
-// ---------------------------
-// NUEVO: DOM helper
-// ---------------------------
-/** Selección corta de elementos (con contexto opcional) */
-export const $ = (selector, ctx = document) => ctx.querySelector(selector);
-
-// ---------------------------
-// NUEVO: Rutas robustas (GitHub Pages / local)
-// ---------------------------
-/** Devuelve la base del sitio ("/<repo>/" en GitHub Pages o "/" en local). */
+/**
+ * Calcula la ruta base del sitio de forma inteligente.
+ * @returns {string} La ruta base a usar (p. ej., "/", "/repo/", etc.).
+ */
 export function siteBase() {
-  // Si agregas <html data-repo="WonderW-Learning">, lo respetamos.
-  const repo = document.documentElement.getAttribute("data-repo");
-  if (repo) {return `/${repo.replace(/^\/|\/$/g, "")}/`;}
+  const host = location.hostname;
 
-  // En GitHub Pages: usuario.github.io/<repo>/...
-  if (location.hostname.endsWith("github.io")) {
-    const first = location.pathname.split("/").filter(Boolean)[0];
-    return first ? `/${first}/` : "/";
+  // 1. Prioridad máxima: si estamos en desarrollo local, la base es siempre "/"
+  if (host === "127.0.0.1" || host === "localhost") {
+    return "/src/";
   }
-  // Local dev (ej. 127.0.0.1:5500)
+  
+  // 2. Si no es local, revisamos si hay un `data-repo` para forzar la base
+  // (útil para GitHub Pages con dominios personalizados).
+  const attr = document.documentElement.getAttribute("data-repo");
+  if (attr) {
+    return `/${attr.replace(/^\/|\/$/g, "")}/`;
+  }
+
+  // 3. Detección automática para GitHub Pages (usuario.github.io/<repo>/)
+  if (host.endsWith("github.io")) {
+    const segs = location.pathname.split("/").filter(Boolean);
+    return segs.length ? `/${segs[0]}/` : "/";
+  }
+  
+  // 4. Para cualquier otro caso (dominio propio en producción), la base es "/"
   return "/";
 }
 
-/** Resuelve una ruta relativa a una URL absoluta, respetando siteBase(). */
-export const resolveAbs = (path) => new URL(path, `${location.origin}${siteBase()}`).toString();
+/** * Resuelve una ruta relativa para que sea absoluta respecto a la base del sitio.
+ * @param {string} path - La ruta a resolver (p. ej., "images/pic.png").
+ * @returns {string} La URL absoluta completa.
+ */
+export function resolveAbs(path) {
+  const p = String(path || "");
+  // Si ya es una URL completa (http/https), no la tocamos.
+  if (/^https?:\/\//i.test(p)) {
+    return p;
+  }
+  const base = siteBase();
+  // Quita la barra inicial si la tiene para evitar dobles barras "//"
+  const normalized = p.startsWith("/") ? p.slice(1) : p;
+  return base + normalized;
+}
 
-// ---------------------------
-// NUEVO: Init reutilizable
-// ---------------------------
+/* --------- Helpers para seleccionar elementos del DOM --------- */
+export function qs(selector, ctx = document) { return ctx.querySelector(selector); }
+export function qsa(selector, ctx = document) { return [...ctx.querySelectorAll(selector)]; }
+export const $ = (selector, ctx = document) => ctx.querySelector(selector);
+export const $$ = (selector, ctx = document) => [...ctx.querySelectorAll(selector)];
+
+/* --------- Helpers para Local Storage y Parámetros de URL --------- */
+export function getLocalStorage(key) { return JSON.parse(localStorage.getItem(key)); }
+export function setLocalStorage(key, data) { localStorage.setItem(key, JSON.stringify(data)); }
+export function getParam(param) { return new URLSearchParams(location.search).get(param); }
+
+/* --------- Helpers para renderizar plantillas HTML --------- */
+export function renderListWithTemplate(template, parent, list, position = "afterbegin", clear = false) {
+  if (!Array.isArray(list)) { return; }
+  if (clear) { parent.innerHTML = ""; }
+  parent.insertAdjacentHTML(position, list.map(template).join(""));
+}
+
+export function renderWithTemplate(template, element) { element.innerHTML = template; }
+
+async function loadTemplate(path) {
+  const res = await fetch(path);
+  if (!res.ok) {
+    throw new Error(`HTTP ${res.status} - No se pudo cargar la plantilla: ${path}`);
+  }
+  return res.text();
+}
+
 /**
- * Ejecuta una función de inicialización una única vez cuando el DOM esté listo.
- * - initFn puede ser async; cualquier error se captura y se envía a onError.
- * - onError(err) es opcional; útil para poner un mensaje en la UI.
+ * Carga el header y footer desde parciales HTML y ajusta las rutas.
+ */
+export async function loadHeaderFooter() {
+  const headerTemplate = await loadTemplate(resolveAbs("public/partials/header.html"));
+  const footerTemplate = await loadTemplate(resolveAbs("public/partials/footer.html"));
+
+  const headerEl = document.querySelector("#main-header");
+  const footerEl = document.querySelector("#main-footer");
+
+  renderWithTemplate(headerTemplate, headerEl);
+  renderWithTemplate(footerTemplate, footerEl);
+
+  // Ajusta la ruta del logo
+  const logo = headerEl.querySelector("[data-logo]");
+  if (logo) {
+    logo.src = resolveAbs("public/images/logo-modified.png");
+  }
+
+  // Reescribe los enlaces con `data-route` para que usen la ruta base correcta
+  const rewriteRoutes = (root) => {
+    root.querySelectorAll("a[data-route]").forEach((a) => {
+      const route = a.getAttribute("data-route") || "";
+      a.href = resolveAbs(route);
+    });
+  };
+  rewriteRoutes(headerEl);
+  const mobileNav = document.querySelector("#mobile-nav");
+  if (mobileNav) {
+    rewriteRoutes(mobileNav);
+  }
+
+  // Marca el enlace de navegación actual con `aria-current="page"`
+  const currentPage = (location.pathname.split("/").pop() || "index.html").toLowerCase();
+  headerEl.querySelectorAll("nav a[href]").forEach((a) => {
+    const linkPage = (a.href.split("/").pop() || "index.html").toLowerCase();
+    if (linkPage === currentPage) {
+      a.setAttribute("aria-current", "page");
+    }
+  });
+}
+
+/**
+ * Ejecuta una función de inicialización de forma segura, esperando a que el DOM esté listo.
+ * @param {Function} initFn - La función (puede ser async) a ejecutar.
+ * @param {Function} [onError] - Callback opcional en caso de error.
  */
 export function safeInit(initFn, onError) {
   const run = () => {
     Promise.resolve()
       .then(() => initFn())
       .catch((err) => {
-        console.error("Init error:", err);
-        try { onError && onError(err); } catch {}
+        console.error("Error durante la inicialización:", err);
+        if (onError) {
+          try { onError(err); } catch (e) { console.error("Error en el callback de error:", e); }
+        }
       });
   };
+
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", run, { once: true });
   } else {
